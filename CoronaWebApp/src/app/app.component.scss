@@ -1,0 +1,120 @@
+
+@import "variables.scss";
+
+.selected {
+  background-color: $accent;
+}
+
+.case-card {
+  width: auto;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.chart {
+  width: auto;
+  height: 40vh;
+  min-height: 40vh;
+  max-height: 60vh;
+  margin-bottom: 10px;
+}
+
+.sticky-top {
+  background-color: white;
+  z-index: 8;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0px;
+}
+
+.sticky-bottom {
+  background-color: white;
+  z-index: 8;
+  position: -webkit-sticky;
+  position: sticky;
+  bottom: 0px;
+}
+
+.center {
+  text-align: center;
+  align-content: center;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.chart-title {
+  text-align: center;
+}
+
+table.center {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+  vertical-align: center;
+}
+
+.recoveredColor {
+  color: #5AA454
+}
+
+.activeColor {
+  color: #E4C454;
+}
+
+.deathsColor {
+  color: #E44D25
+}
+
+table.full-width {
+  width: 100%;
+}
+
+.highlight {
+  background: lightpink;
+}
+
+.toolbar-center {
+  flex: 1 1 auto;
+  text-align: center;
+}
+
+.menu-radio-group {
+  display: flex;
+  flex-direction: column;
+  margin: 15px 0;
+}
+
+.menu-radio-button {
+  margin: 5px;
+}
+
+.mat-column-cases {
+  text-align: right;
+}
+
+.align-right-cell {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.right {
+  text-align: right;
+}
+
+.left {
+  text-align: left;
+}
+
+.warn {
+  color: $warn;
+}
+
+.green {
+  color: green;
+}
+// .mat-tab-link, .mat-tab-label, .mat-tab-label-active {
+//   min-width: 20px!important;
+// }

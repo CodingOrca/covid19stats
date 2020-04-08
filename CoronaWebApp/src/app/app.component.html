@@ -1,0 +1,229 @@
+<div>
+  <div class="sticky-top">
+    <mat-toolbar color="primary" role="heading" style="height:2.5em;">
+        <span class="toolbar-center">{{currentCountry.country}}</span> 
+    </mat-toolbar>
+
+    <mat-tab-group class="mat-elevation-z8" color="primary">
+      <mat-tab>
+        <ng-template mat-tab-label>#</ng-template>
+        <ng-template matTabContent>
+          <div class="chart">
+            <table class="center">
+              <tr>
+                <td class="left bold" colspan="3">Latest Full-day data from {{currentCountry.updated | date }}</td>
+              <tr>
+              <tr>
+                <td class="right">New cases:</td>
+                <td class="right">{{currentCountry.delta}}</td>
+                <td class="left">
+                  <span *ngIf="currentCountry.deltaDelta > 0" class="warn">
+                    <mat-icon>trending_up</mat-icon>
+                  </span>
+                  <span *ngIf="currentCountry.deltaDelta < 0" class="green">
+                    <mat-icon>trending_down</mat-icon>
+                  </span>
+                  <span *ngIf="currentCountry.deltaDelta == 0">
+                    <mat-icon>trending_flat</mat-icon>
+                  </span>
+                </td>
+              <tr>
+              <tr>
+                <td class="right">Total cases:</td>
+                <td class="right">{{currentCountry.cases}}</td>
+              <tr>
+                <td class="right activeColor"> Active:</td> 
+                <td class="right">{{currentCountry.active}}</td>
+                <td class="left">
+                  <span *ngIf="currentCountry.activeDelta > 0" class="warn">
+                    <mat-icon>trending_up</mat-icon>
+                  </span>
+                  <span *ngIf="currentCountry.activeDelta < 0" class="green">
+                    <mat-icon>trending_down</mat-icon>
+                  </span>
+                  <span *ngIf="currentCountry.activeDelta == 0">
+                    <mat-icon>trending_flat</mat-icon>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td class="right recoveredColor">Recovered:</td> 
+                <td class="right">{{currentCountry.recovered}}</td>
+              </tr>
+              <tr>
+                <td class="right deathsColor">Deaths:</td> 
+                <td class="right">{{currentCountry.deaths}}</td>
+              </tr>
+              <tr>
+                <td class="right">Growth rate:</td> 
+                <td class="right">{{currentCountry.growthRate | number:'1.1-1' }}%</td>
+                <td class="left">
+                  <span *ngIf="currentCountry.growthRateDelta > 0" class="warn">
+                    <mat-icon>trending_up</mat-icon>
+                  </span>
+                  <span *ngIf="currentCountry.growthRateDelta < 0" class="green">
+                    <mat-icon>trending_down</mat-icon>
+                  </span>
+                  <span *ngIf="currentCountry.growthRateDelta == 0">
+                    <mat-icon>trending_flat</mat-icon>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td class="right">Doubling time:</td> 
+                <td class="right">{{currentCountry.doublingTime | number:'1.1-1' }} days</td>
+                <td class="left">
+                  <span *ngIf="currentCountry.doublingTimeDelta > 0" class="green">
+                    <mat-icon>trending_up</mat-icon>
+                  </span>
+                  <span *ngIf="currentCountry.doublingTimeDelta < 0" class="warn">
+                    <mat-icon>trending_down</mat-icon>
+                  </span>
+                  <span *ngIf="currentCountry.doublingTimeDelta == 0">
+                    <mat-icon>trending_flat</mat-icon>
+                  </span>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </ng-template>
+      </mat-tab>
+      <!-- <mat-tab>
+        <ng-template mat-tab-label>2x</ng-template>
+        <ng-template matTabContent>
+          <div class="chart">
+            <ngx-charts-line-chart
+              [legend]="legend"
+              [legendPosition]="legendPosition"
+              [showXAxisLabel]="showXAxisLabel"
+              [showYAxisLabel]="showYAxisLabel"
+              [xAxis]="xAxis"
+              [yAxis]="yAxis"
+              [xAxisLabel]="doublingCaption"
+              [yAxisLabel]="dAxisLabel"
+              [xScaleMin]="xTimeScaleMin"
+              [results]="currentDoublingSeries"
+              [timeline]="timeline"
+              (select)="onSelect($event)">
+            </ngx-charts-line-chart>
+          </div>
+        </ng-template>
+      </mat-tab> -->
+      <mat-tab>
+        <ng-template mat-tab-label>&Delta;</ng-template>
+        <ng-template matTabContent>
+          <div class="chart">
+            <ngx-charts-bar-vertical
+              [legend]="legend"
+              [barPadding]=1
+              [legendPosition]="legendPosition"
+              [showXAxisLabel]="showXAxisLabel"
+              [showYAxisLabel]="showYAxisLabel"
+              [xAxis]="xAxis"
+              [yAxis]="yAxis"
+              [xAxisLabel]="deltaCaption"
+              [yAxisLabel]="gAxisLabel"
+              [yScaleMax]="yScaleMaxDelta"
+              [xAxisTickFormatting]="dateAxisTickFormattingFn"
+              [results]="currentDeltaSeries"
+              (select)="onSelect($event)">
+            </ngx-charts-bar-vertical>
+          </div>
+        </ng-template>
+      </mat-tab>
+      <mat-tab>
+        <ng-template mat-tab-label>&Sigma;</ng-template>
+        <ng-template matTabContent>
+          <div class="chart">
+            <ngx-charts-area-chart-stacked
+              [scheme]="colorScheme"
+              [legend]="legend"
+              [legendPosition]="legendPosition"
+              [showXAxisLabel]="showXAxisLabel"
+              [showYAxisLabel]="showYAxisLabel"
+              [xAxis]="xAxis"
+              [yAxis]="yAxis"
+              [xAxisLabel]="totalCaption"
+              [yAxisLabel]="yAxisLabel"
+              [yAxisTickFormatting]="yAxisTickFormattingFn"
+              [xScaleMin]="xTimeScaleMin"
+              [yScaleMax]="yScaleMaxCases"
+              [results]="currentCasesSeries"
+              [timeline]="timeline"
+              (select)="onSelect($event)">
+            </ngx-charts-area-chart-stacked>
+          </div>      
+        </ng-template> 
+      </mat-tab>
+      <mat-tab>
+        <ng-template mat-tab-label>&Delta;/&Sigma;</ng-template>
+        <ng-template matTabContent>
+          <div class="chart">
+            <ngx-charts-line-chart
+              [legend]="legend"
+              [legendPosition]="legendPosition"
+              [showXAxisLabel]="showXAxisLabel"
+              [showYAxisLabel]="showYAxisLabel"
+              [xAxisTickFormatting]="logAxisTickFormattingFn"
+              [yAxisTickFormatting]="logAxisTickFormattingFn"
+              [xAxis]="xAxis"
+              [yAxis]="yAxis"
+              [xAxisTicks]="logTicks"
+              [yAxisTicks]="logTicks"
+              [xAxisLabel]="logCaption"
+              [yAxisLabel]="yLogLabel"
+              [xScaleMin]="xLogScaleMin"
+              [xScaleMax]="xLogScaleMax"
+              [yScaleMin]="yLogScaleMin"
+              [yScaleMax]="yLogScaleMax"
+              [results]="currentLogSeries"
+              [timeline]="timeline"
+              [tooltipDisabled]=true
+              (select)="onSelect($event)">
+            </ngx-charts-line-chart>
+          </div>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+  
+  <mat-table [dataSource]="tableData" class="full-width mat-elevation-z8" matSort>
+    <ng-container matColumnDef="country">
+      <mat-footer-cell *matFooterCellDef mat-sort-header>Country </mat-footer-cell>
+      <mat-cell *matCellDef="let element"> {{element.country}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="cases">
+      <mat-footer-cell *matFooterCellDef mat-sort-header class="align-right-cell"> Cases </mat-footer-cell>>
+      <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.cases}}</mat-cell>>
+    </ng-container>
+
+    <ng-container matColumnDef="deaths">
+      <mat-footer-cell *matFooterCellDef class="deathsColor align-right-cell" mat-sort-header> Deaths </mat-footer-cell>>
+      <mat-cell *matCellDef="let element" class="deathsColor align-right-cell"> &nbsp;{{element.deaths}} </mat-cell>>
+    </ng-container>
+
+    <mat-row *matRowDef="let row; columns: displayedColumns" 
+      [ngClass]="{'highlight': currentCountry == row}"
+      (click)="selectCountry(row)">
+    </mat-row>>
+    <mat-footer-row *matFooterRowDef="displayedColumns;sticky: true" style="font-weight: bold;"></mat-footer-row>>
+
+  </mat-table>
+</div>
+
+<div style="margin: 15px;">
+  <h1>Disclaimer & Credits</h1> 
+  <p>This application is work in progress. It is not tested, please do not rely on it.</p>
+  <p>It is a sample application to visualize the data provided by 
+  <a href="https://github.com/NovelCOVID">NovelCOVID</a>.<br> 
+  The APIs are documented <a href="https://docs.corona.lmao-xd.wtf/version-2">here</a>.<br>
+  The data at the beginning are retrieved using:<br>
+  <a href="https://corona.lmao.ninja/all">https://corona.lmao.ninja/all</a><br>
+  <a href="https://corona.lmao.ninja/v2/historical/all">https://corona.lmao.ninja/v2/historical/all</a><br>
+  While the table below is a visualization of the data retrieved using<br>
+  <a href="https://corona.lmao.ninja/v2/jhucsse">https://corona.lmao.ninja/v2/jhucsse</a><br>
+  </p>
+</div>
+
+<router-outlet></router-outlet>
