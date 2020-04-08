@@ -2,6 +2,9 @@
   <div class="sticky-top">
     <mat-toolbar color="primary" role="heading" style="height:2.5em;">
         <span class="toolbar-center">{{currentCountry.country}}</span> 
+        <button mat-icon-button (click)="openGitHub()">
+          <mat-icon>help</mat-icon>
+        </button>
     </mat-toolbar>
 
     <mat-tab-group class="mat-elevation-z8" color="primary">

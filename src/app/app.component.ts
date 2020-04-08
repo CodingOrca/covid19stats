@@ -314,6 +314,11 @@ export class AppComponent implements OnInit {
     this.tableData._updateChangeSubscription();
     this.RenderCountryHistory(country.country);
   }
+
+  openGitHub()
+  {
+    window.open("https://github.com/CodingOrca/covid19stats/blob/master/README.md");
+  }
 }
 
 export class DataSeries {
