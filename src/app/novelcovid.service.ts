@@ -10,10 +10,12 @@ export class DataService {
   constructor(private http: HttpClient) { 
   }
 
-  async getLatestWorldData(): Promise<CaseData>
+  async getYesterdaysWorldData(): Promise<YesterdayData>
   {
-    let caseData = await this.http.get<CaseData>("https://corona.lmao.ninja/all").toPromise();
+    let caseData = await this.http.get<YesterdayData>("https://corona.lmao.ninja/all").toPromise();
     caseData.country = "World";
+    caseData.countryInfo = new CountryInfo();
+    caseData.countryInfo.flag = "assets/globe_PNG62.png"
     return caseData;
   }
 
@@ -53,6 +55,10 @@ export class DataService {
     }  
 
     return result;
+  }
+
+  async getYesterdaysData(): Promise<YesterdayData[]> {
+    return await this.http.get<YesterdayData[]>("https://corona.lmao.ninja/yesterday?sort=cases").toPromise();
   }
 
   async getAllHistoricalData(): Promise<Map<string,CaseData[]>>
@@ -168,4 +174,29 @@ class HistTimeline {
   cases: any;
   deaths: any;
   recovered: any;
+}
+
+export class CountryInfo {
+  iso2: string;
+  iso3: string;
+  lat: number;
+  long: number;
+  flag: string;
+}
+
+export class YesterdayData {
+  updated: number;
+  country: string;
+  countryInfo: CountryInfo;
+  cases: number;
+  todayCases: number;
+  deaths: number;
+  todayDeaths: number;
+  recovered: number;
+  active: number;
+  critical: number;
+  casesPerOneMillion: number;
+  deathsPerOneMillion: number;
+  tests: number;
+  testsPerOneMillion: number; 
 }

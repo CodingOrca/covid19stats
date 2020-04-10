@@ -1,5 +1,8 @@
-
 @import "variables.scss";
+
+table.tr {
+  height: 12px;
+}
 
 .selected {
   background-color: $accent;
@@ -13,9 +16,7 @@
 
 .chart {
   width: auto;
-  height: 40vh;
-  min-height: 40vh;
-  max-height: 60vh;
+  height: 35vh;
   margin-bottom: 10px;
 }
 
@@ -48,12 +49,53 @@
   text-align: center;
 }
 
-table.center {
+table.summary-table {
   margin-left: auto;
   margin-right: auto;
   margin-top: auto;
   margin-bottom: auto;
   vertical-align: center;
+}
+
+.summary-table tr {
+  height: 14px!important;
+  font-size: small;
+}
+
+.mat-footer-row, .mat-row {
+  min-height: 32px!important;
+}
+
+.small-icon {
+  width: 28px!important;
+  object-fit: contain;
+  margin-right: 3px;
+}
+
+.mat-cell {
+  font-size: smaller;
+}
+
+.mat-footer-cell {
+  font-size: smaller;
+  background-color: $primary-light;
+  font-weight: bold;
+}
+
+.mat-column-country {
+  min-width: 100px;
+}
+
+mat-cell:first-child, mat-footer-cell:first-child, mat-header-cell:first-child {
+  padding-left: 5px!important;
+}
+
+mat-cell:last-child, mat-footer-cell:last-child, mat-header-cell:last-child {
+  padding-right: 5px!important;
+}
+
+.mat-table-sticky {
+  border-top: 1px solid #e0e0e0;
 }
 
 .recoveredColor {
@@ -73,7 +115,7 @@ table.full-width {
 }
 
 .highlight {
-  background: lightpink;
+  background: $accent-light;
 }
 
 .toolbar-center {
@@ -89,10 +131,6 @@ table.full-width {
 
 .menu-radio-button {
   margin: 5px;
-}
-
-.mat-column-cases {
-  text-align: right;
 }
 
 .align-right-cell {
@@ -115,6 +153,7 @@ table.full-width {
 .green {
   color: green;
 }
+
 // .mat-tab-link, .mat-tab-label, .mat-tab-label-active {
 //   min-width: 20px!important;
 // }
