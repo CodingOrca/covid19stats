@@ -182,6 +182,7 @@
         The population P is chosen to be that 
         of {{currentCountry.country}}: {{currentCountry.population | number:"1.0-0"}}.
     </p>
+    <br>
     <div style="display: flex; flex-direction: row; flex-wrap: wrap; margin:-15px">
         <div style="white-space: nowrap; margin-left: 15px;">
             R<sub>0</sub>: {{reproductionNumber | number:"1.1-1"}}
@@ -209,14 +210,14 @@
                 >
             </mat-slider>
         </div>
-    </div>
-    <div style="height: 40vh; margin-bottom: 70px;">
+    </div><br>
+    <div style="height: 40vh;margin-left: -15px;">
         <ngx-charts-line-chart
-            [legend]="'true'"
+            [legend]="false"
             [roundDomains]=true
             [legendPosition]="'below'"
-            [showXAxisLabel]=true
-            [showYAxisLabel]=true
+            [showXAxisLabel]=false
+            [showYAxisLabel]=false
             [xAxis]=true
             [yAxis]=true
             [xAxisLabel]="'days from start'"
@@ -240,14 +241,17 @@
     <p>
     Below we run a simulation which starts with the initial values as currently reported for {{currentCountry.country}},
     and adjusts the reproduction rate R<sub>0</sub> every 14 days to a new value, so that
-    the active infections will not exceed a value you choose, but will try to stay as high as possible below that number:<br>
+    the active infections will not exceed a value you choose, but will try to stay as high as possible below that number<br>
+    The first graph shows the number of infected (A) and recovered (R) over time as reported until yesterday, from today onwards the simulated values.<br>
+    The second graph shows the reproduction number: until today, measured on the reported value; from today onwards, 
+    measured on the simulated data. 
     </p>
     <div style="height: 40vh;margin-left:-15px;margin-right:-15px">
         <ngx-charts-line-chart
             [roundDomains]=true
             [legendPosition]="'below'"
             [showXAxisLabel]=false
-            [showYAxisLabel]=true
+            [showYAxisLabel]=false
             [xAxis]=true
             [yAxis]=true
             [xAxisLabel]="'days from start'"
@@ -261,8 +265,8 @@
         <ngx-charts-line-chart
             [roundDomains]=true
             [legendPosition]="'below'"
-            [showXAxisLabel]=true
-            [showYAxisLabel]=true
+            [showXAxisLabel]=false
+            [showYAxisLabel]=false
             [xAxis]=true
             [yAxis]=true
             [xAxisLabel]="'days from start'"
@@ -289,4 +293,13 @@
             </button>
         </div>
     </div>
+    <p>
+        The program starts with those values reported by JSU and tries to adjust the reproduction number in steps of 0.5,
+        between 1 and 5, and tries to reach the number of simultaneously infected person you choose. The program will change 
+        the value only once every 14 days. It is never going up more than one step of 0.5 - but if needed, it is allowed to
+        go down as much as needed, but not below 1.
+    </p>
+    <p>They say, Covid-19's "natural" reproduction number R<sub>0</sub> is between 3 and 5. By "natural" I mean without any social
+         distancing, so as we used to live before. Probably you can see in the graph, it is going to take a long time 
+         until we will have the freedom to live as before...
 </div>
