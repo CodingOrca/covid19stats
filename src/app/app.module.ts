@@ -51,10 +51,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 
+import { InfoDialog } from './info-dialog';
+
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    InfoDialog
   ],
   imports: [
     BrowserModule,
@@ -107,7 +110,8 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
     FormsModule,
     NgxChartsModule,
   ],
-  providers: [],
+  providers: [],  
+  entryComponents: [InfoDialog],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

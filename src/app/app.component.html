@@ -1,110 +1,107 @@
 <div>
   <div class="sticky-top">
-    <mat-toolbar color="primary" role="heading" style="height:32px;">
+    <mat-toolbar color="primary" role="heading">
       <img class="small-icon" src={{currentCountry.flag}}/>
         <div class="toolbar-center">
           <div>{{currentCountry.country}}</div>
         </div> 
         <button mat-icon-button (click)="openGitHub()">
-          <mat-icon>help</mat-icon>
+          <mat-icon>info</mat-icon>
         </button>
     </mat-toolbar>
 
-    <mat-tab-group class="mat-elevation-z8" color="accent">
+    <mat-tab-group class="mat-elevation-z8" color="accent" (selectedIndexChange)="selectedIndexChange($event)">
       <mat-tab>
         <ng-template mat-tab-label>#</ng-template>
         <ng-template matTabContent>
-          <div class="chart">
-            <table class="summary-table">
-              <tr>
-                <td class="right">New cases - &Delta;: </td>
-                <td class="right">{{currentCountry.delta}}</td>
-                <td class="left">
-                  <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta > 0" class="warn">trending_up</mat-icon>
-                  <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta < 0" class="green">trending_down</mat-icon>
-                  <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta == 0">trending_flat</mat-icon>
-                </td>
-              </tr>
-              <tr>
-                <td class="right">Total cases - &Sigma;:</td>
-                <td class="right">{{currentCountry.cases}}</td>
-              </tr>
-              <tr>
-                <td class="right"> Active - A:</td> 
-                <td class="right">{{currentCountry.active}}</td>
-                <td class="left">
-                  <mat-icon [inline]=true *ngIf="currentCountry.activeDelta > 0" class="warn">trending_up</mat-icon>
-                  <mat-icon [inline]=true *ngIf="currentCountry.activeDelta < 0" class="green">trending_down</mat-icon>
-                  <mat-icon [inline]=true *ngIf="currentCountry.activeDelta == 0">trending_flat</mat-icon>
-                </td>
-              </tr>
-              <tr>
-                <td class="right recoveredColor">Recovered - R:</td> 
-                <td class="right">{{currentCountry.recovered}}</td>
-              </tr>
-              <tr>
-                <td class="right deathsColor">Critical - C:</td> 
-                <td class="right">{{currentCountry.critical}}</td>
-              </tr>
-              <tr>
-                <td class="right deathsColor">Deaths - &Theta;:</td> 
-                <td class="right">{{currentCountry.deaths}}</td>
-              </tr>
-              <tr>
-                <td class="right">Growth rate - G:</td> 
-                <td class="right">{{currentCountry.growthRate | number:'1.1-1' }}%</td>
-                <td class="left">
-                  <span *ngIf="currentCountry.growthRateDelta > 0" class="warn">
-                    <mat-icon [inline]=true>trending_up</mat-icon>
-                  </span>
-                  <span *ngIf="currentCountry.growthRateDelta < 0" class="green">
-                    <mat-icon [inline]=true>trending_down</mat-icon>
-                  </span>
-                  <span *ngIf="currentCountry.growthRateDelta == 0">
-                    <mat-icon [inline]=true>trending_flat</mat-icon>
-                  </span>
-                </td>
-              </tr>
-              <tr>
-                <td class="right">Doubling time - 2&Tau;:</td> 
-                <td class="right">{{currentCountry.doublingTime | number:'1.1-1' }} d</td>
-                <td class="left">
-                  <span *ngIf="currentCountry.doublingTimeDelta > 0" class="green">
-                    <mat-icon [inline]=true>trending_up</mat-icon>
-                  </span>
-                  <span *ngIf="currentCountry.doublingTimeDelta < 0" class="warn">
-                    <mat-icon [inline]=true>trending_down</mat-icon>
-                  </span>
-                  <span *ngIf="currentCountry.doublingTimeDelta == 0">
-                    <mat-icon [inline]=true>trending_flat</mat-icon>
-                  </span>
-                </td>
-              </tr>
-            </table>
+          <div class="chart" style="margin: 10px;margin-bottom: 0px">
+            <div style="display:flex; flex-flow: row wrap;">
+              <div class="wrap-item">
+                <div class="small">&Sigma; - total cases:</div>
+                {{currentCountry.cases}} ({{currentCountry.casesPerMille | number:"1.2-2"}}&permil;)
+              </div>
+              <div class="wrap-item">
+                <div class="small">T - tested persons:</div>
+                {{currentCountry.tests}} ({{currentCountry.testsPerMille | number:"1.2-2"}}&permil;)
+              </div>
+              <div class="wrap-item">
+                <div class="small">&Delta; - new cases:</div>
+                <b>{{currentCountry.delta}}</b>
+                <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta > 0" class="warn">trending_up</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta < 0" class="green">trending_down</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta == 0">trending_flat</mat-icon>
+              </div>
+              <div class="wrap-item">
+                <div class="small with-subscript">R<sub>0</sub> - Reproduction number</div>
+                <b>{{currentCountry.reproductionNumber | number:'1.1-1' }}</b>
+                <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta > 0" class="warn">trending_up</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta < 0" class="green">trending_down</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta == 0">trending_flat</mat-icon>
+              </div>
+              <div class="warn wrap-item">
+                <div class="small">A - active cases:</div>
+                <b>{{currentCountry.active}}</b>
+                <mat-icon [inline]=true *ngIf="currentCountry.activeDelta > 0" class="warn">trending_up</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.activeDelta < 0" class="green">trending_down</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.activeDelta == 0">trending_flat</mat-icon>
+              </div>
+              <div class="green wrap-item">
+                <div class="small">R - recovered:</div>
+                <b>{{currentCountry.recovered}}</b>
+              </div>
+              <div class="warn wrap-item">
+                <div class="small">C - critical:</div>
+                <b>{{currentCountry.critical}}</b>
+              </div>
+              <div class="wrap-item">
+                <div class="small">&Theta; - deaths:</div>
+                <b>{{currentCountry.deaths}} ({{currentCountry.deltaDeaths}} new)</b>
+              </div>
+            </div>
+            <mat-divider></mat-divider>
+            <div style="display:flex; flex-flow: row wrap;">
+              <div class="wrap-item">
+                <div class="small"> 
+                  <b>&permil;</b> applies to <a href="https://www.worldometers.info/" target="_blank">population</a>
+                </div>
+                <span class="small"> 
+                  R<sub>0</sub> - &empty; of last 5 days
+                </span>
+              </div>
+              <div class="wrap-item">
+                <div class="small">&empty; 
+                  <a href="https://www.wolframalpha.com/input/?i=annual+deaths" target="_blank">mortality of last years:</a>
+                </div>
+                {{currentCountry.mortalityRate}}/y ({{currentCountry.mortalityRatePerDay}}/d)
+              </div>
+            </div>
           </div>
         </ng-template>
       </mat-tab>
-      <!-- <mat-tab>
-        <ng-template mat-tab-label>2x</ng-template>
+      <mat-tab>
+        <ng-template mat-tab-label>&Sigma;</ng-template>
         <ng-template matTabContent>
           <div class="chart">
-            <ngx-charts-line-chart
+            <ngx-charts-area-chart-stacked
+              [scheme]="colorScheme"
               [legend]="legend"
               [legendPosition]="legendPosition"
               [showXAxisLabel]="showXAxisLabel"
-              [showYAxisLabel]="showYAxisLabel"
               [xAxis]="xAxis"
               [yAxis]="yAxis"
-              [xAxisLabel]="doublingCaption"
-              [yAxisLabel]="dAxisLabel"
+              [xAxisLabel]="'Total cases: &Sigma;=A+R+&Theta; over time'"
+              [yAxisTickFormatting]="yAxisTickFormattingFn"
               [xScaleMin]="xTimeScaleMin"
-              [results]="currentDoublingSeries"
+              [results]="currentCasesSeries"
               [timeline]="timeline"
               (select)="onSelect($event)">
-            </ngx-charts-line-chart>
-          </div>
-        </ng-template>
-      </mat-tab> -->
+            </ngx-charts-area-chart-stacked>
+            <!-- [yAxisLabel]="'&larr; tested persons &rarr;'"
+              [showYAxisLabel]="'true'"
+            [yScaleMax]="currentCountry.tests" -->
+        </div>      
+        </ng-template> 
+      </mat-tab>
       <mat-tab>
         <ng-template mat-tab-label>&Delta;</ng-template>
         <ng-template matTabContent>
@@ -119,10 +116,11 @@
               [showYAxisLabel]="showYAxisLabel"
               [xAxis]="xAxis"
               [yAxis]="yAxis"
-              [xAxisLabel]="deltaCaption"
+              [xAxisLabel]="'New cases per day: &Delta; over time'"
               [yAxisLabel]="gAxisLabel"
               [xAxisTicks]="deltaTimeTicks"
               [xAxisTickFormatting]="dateAxisTickFormattingFn"
+              [yAxisTickFormatting]="yAxisTickFormattingFn"
               [results]="currentDeltaSeries"
               (select)="onSelect($event)">
             </ngx-charts-bar-vertical>
@@ -130,30 +128,29 @@
         </ng-template>
       </mat-tab>
       <mat-tab>
-        <ng-template mat-tab-label>&Sigma;</ng-template>
+        <ng-template mat-tab-label><div style="margin-bottom: -4px;">R<sub>0</sub></div></ng-template>
         <ng-template matTabContent>
           <div class="chart">
-            <ngx-charts-area-chart-stacked
-              [scheme]="colorScheme"
-              [legend]="legend"
-              [legendPosition]="legendPosition"
+            <ngx-charts-line-chart
               [showXAxisLabel]="showXAxisLabel"
               [showYAxisLabel]="showYAxisLabel"
               [xAxis]="xAxis"
               [yAxis]="yAxis"
-              [xAxisLabel]="totalCaption"
-              [yAxisLabel]="yAxisLabel"
-              [yAxisTickFormatting]="yAxisTickFormattingFn"
+              [xAxisLabel]="'Reproduction number over time'"
+              [yAxisLabel]="dAxisLabel"
               [xScaleMin]="xTimeScaleMin"
-              [results]="currentCasesSeries"
+              [yScaleMax]="'10'"
+              [yAxisTicks]="reproductionTicks"
+              [xAxisTickFormatting]="dateAxisTickFormattingFn"
+              [results]="currentReproductionSeries"
               [timeline]="timeline"
               (select)="onSelect($event)">
-            </ngx-charts-area-chart-stacked>
-          </div>      
-        </ng-template> 
+            </ngx-charts-line-chart>
+          </div>
+        </ng-template>
       </mat-tab>
       <mat-tab>
-        <ng-template mat-tab-label>&Delta;/&Sigma;</ng-template>
+        <ng-template mat-tab-label>ln&Sigma;</ng-template>
         <ng-template matTabContent>
           <div class="chart">
             <ngx-charts-line-chart
@@ -161,16 +158,14 @@
               [legendPosition]="legendPosition"
               [showXAxisLabel]="showXAxisLabel"
               [showYAxisLabel]="showYAxisLabel"
-              [xAxisTickFormatting]="logAxisTickFormattingFn"
+              [xAxisTickFormatting]="dateAxisTickFormattingFn"
               [yAxisTickFormatting]="logAxisTickFormattingFn"
               [xAxis]="xAxis"
               [yAxis]="yAxis"
-              [xAxisTicks]="xLogTicks"
               [yAxisTicks]="yLogTicks"
-              [xAxisLabel]="logCaption"
+              [xAxisLabel]="'Total cases (logarithmic): &Sigma; over time'"
               [yAxisLabel]="yLogLabel"
-              [xScaleMin]="xLogScaleMin"
-              [xScaleMax]="xLogScaleMax"
+              [xScaleMin]="xTimeScaleMin"
               [yScaleMin]="yLogScaleMin"
               [yScaleMax]="yLogScaleMax"
               [results]="currentLogSeries"
@@ -202,33 +197,33 @@
     </ng-container>
 
     <ng-container matColumnDef="active">
-      <mat-footer-cell *matFooterCellDef mat-sort-header class="align-right-cell"> &Alpha; </mat-footer-cell>>
+      <mat-footer-cell *matFooterCellDef mat-sort-header class="align-right-cell warn"> A </mat-footer-cell>>
       <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.active}}</mat-cell>>
     </ng-container>
 
     <ng-container matColumnDef="recovered">
       <mat-footer-cell *matFooterCellDef class="align-right-cell green" mat-sort-header> R </mat-footer-cell>>
-      <mat-cell *matCellDef="let element" class="align-right-cell green"> {{element.recovered}} </mat-cell>>
+      <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.recovered}} </mat-cell>>
     </ng-container>
 
     <ng-container matColumnDef="deaths">
-      <mat-footer-cell *matFooterCellDef mat-sort-header class="align-right-cell warn"> &Theta; </mat-footer-cell>>
+      <mat-footer-cell *matFooterCellDef mat-sort-header class="align-right-cell"> &Theta; </mat-footer-cell>>
       <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.deaths}}</mat-cell>>
     </ng-container>
 
     <ng-container matColumnDef="critical">
       <mat-footer-cell *matFooterCellDef mat-sort-header class="align-right-cell warn"> C </mat-footer-cell>>
-      <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.deaths}}</mat-cell>>
+      <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.critical}}</mat-cell>>
     </ng-container>
 
-    <ng-container matColumnDef="growthRate">
-      <mat-footer-cell *matFooterCellDef mat-sort-header class="align-right-cell"> G </mat-footer-cell>>
-      <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.growthRate | number:'1.1-1'}}%</mat-cell>>
+    <ng-container matColumnDef="infectionRate">
+      <mat-footer-cell *matFooterCellDef mat-sort-header class="align-right-cell"> <div style="margin-bottom: -4px;">r<sub>0</sub></div> </mat-footer-cell>>
+      <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.infectionRate | number:'1.1-1'}}%</mat-cell>>
     </ng-container>
 
-    <ng-container matColumnDef="doublingTime">
-      <mat-footer-cell *matFooterCellDef mat-sort-header class="align-right-cell"> 2&Tau; </mat-footer-cell>>
-      <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.doublingTime | number:'1.1-1'}} d</mat-cell>>
+    <ng-container matColumnDef="reproductionNumber">
+      <mat-footer-cell *matFooterCellDef mat-sort-header class="align-right-cell"> <div style="margin-bottom: -4px;">R<sub>0</sub></div> </mat-footer-cell>>
+      <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.reproductionNumber | number:'1.2-2'}}</mat-cell>>
     </ng-container>
 
     <mat-row *matRowDef="let row; columns: displayedColumns" 
@@ -243,15 +238,11 @@
 <div style="margin: 15px;">
   <h1>Disclaimer & Credits</h1> 
   <p>This application is work in progress. It is not tested, please do not rely on it.</p>
-  <p>It is a sample application to visualize the data provided by 
-  <a href="https://github.com/NovelCOVID">NovelCOVID</a>.<br> 
-  The APIs are documented <a href="https://docs.corona.lmao-xd.wtf/version-2">here</a>.<br>
-  The data at the beginning are retrieved using:<br>
-  <a href="https://corona.lmao.ninja/all">https://corona.lmao.ninja/all</a><br>
-  <a href="https://corona.lmao.ninja/v2/historical/all">https://corona.lmao.ninja/v2/historical/all</a><br>
-  While the table below is a visualization of the data retrieved using<br>
-  <a href="https://corona.lmao.ninja/v2/jhucsse">https://corona.lmao.ninja/v2/jhucsse</a><br>
+  <p>Covid-19 data are provided by 
+  <a href="https://github.com/NovelCOVID" target="_blank">NovelCOVID</a>.
   </p>
+  Mortality rates are taken from 
+  <a href="https://www.wolframalpha.com/input/?i=annual+deaths" target="_blank">Wolfram Alpha</a>.
 </div>
 
 <router-outlet></router-outlet>

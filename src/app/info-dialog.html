@@ -1,0 +1,292 @@
+<div mat-dialog-title style="display:flex;direction:rows;">
+    <h1>{{currentCountry.country}}</h1>
+    <span style="flex: 1 1 auto;"></span> 
+    <button mat-icon-button [mat-dialog-close]>
+        <mat-icon>close</mat-icon>
+    </button>
+</div>
+<div>
+    <!-- Today, {{currentCountry.todayCases | number}} new cases and {{currentCountry.todayDeaths | number}} deaths are reported, 
+    but the data collection is not complete and also not reliable.<br> -->
+    <p>
+    Yesterday, {{currentCountry.delta | number}} new cases where reported.
+    It is expected that during the time they are contagious, each of them will infect 
+    {{currentCountry.reproductionNumber | number:"1.2-2"}} new persons on average, so that 
+    that the number of currently infected person of {{currentCountry.active}} will 
+    <span *ngIf="currentCountry.reproductionNumber > 1.1">increase</span>
+    <span *ngIf="currentCountry.reproductionNumber >= 0.9 && currentCountry.reproductionNumber <= 1.1">stagnate</span>
+    <span *ngIf="currentCountry.reproductionNumber < 0.9">fall</span>.
+
+    </p>
+    <div style="display:flex;direction:rows;">
+        <span *ngIf="!perMillSummary" style="font-size: larger;">Facts - in absolute numbers</span>
+        <span *ngIf="perMillSummary" style="font-size: larger;">Facts - in &permil; of population </span>
+        <span class="h-fill"></span> 
+        <mat-slide-toggle color="primary" [(ngModel)]="perMillSummary">
+            <span>&permil;</span>
+        </mat-slide-toggle>
+    </div>
+    <div *ngIf="!perMillSummary">
+    Up to now, a total number of {{currentCountry.tests | number}} persons where tested.
+    {{currentCountry.cases | number}} results where positive
+     ({{100*currentCountry.cases/currentCountry.tests | number:"1.1-1"}}% of the tests). Their current state is:
+    <ul>
+        <li>{{currentCountry.recovered | number}} recovered and are now immune and not contagious anymore.</li>
+        <li> {{currentCountry.active | number}} are still active (meaning they are still infected and contagious),
+            {{currentCountry.critical | number}} of them in a critical situation<span class="small"><sup>1</sup></span></li>
+        <li>{{currentCountry.deaths | number}} died<span class="small"><sup>2</sup></span></li>
+    </ul>
+    <mat-divider></mat-divider>
+    <div class="small" style="margin-top: 10px;"> 
+        <p><sup>1</sup> should stay below the number of ICU and CCB available in your country. 
+            See <a href="https://en.wikipedia.org/wiki/List_of_countries_by_hospital_beds">
+                Wikipedia article <em>List of countries by hospital beds</em></a></p>
+        <p><sup>2</sup> to be compared with the estimated mortality of your country from the last last years 
+        (before the Corona virus), which is 
+        {{currentCountry.mortalityRate | number}} per year 
+        ({{currentCountry.mortalityRatePerDay | number}} per day).
+        See <a href="https://www.wolframalpha.com/input/?i=annual+deaths" target="_blank">Wolfram Alpha</a>.
+        </p>
+    </div>
+    </div>
+    <div *ngIf="perMillSummary">
+    Up to now, {{currentCountry.testsPerMille | number:"1.2-2"}}&permil; of {{currentCountry.country}}'s population
+    was tested, {{currentCountry.casesPerMille| number:"1.2-2"}}&permil; positive 
+    ({{100*currentCountry.cases/currentCountry.tests | number:"1.1-1"}}% of the tests). Their current state is:
+    <ul>
+        <li>{{currentCountry.recoveredPerMille | number:"1.2-2"}}&permil; recovered and are not contagious anymore.</li>
+        <li>{{currentCountry.activePerMille | number:"1.2-2"}}&permil; are still active (meaning they are still 
+            infected and contagious),
+        {{currentCountry.criticalPerMille | number:"1.2-2"}}&permil; are in a critical situation<span class="small"><sup>1</sup></span></li>
+        <li>{{currentCountry.deathsPerMille | number:"1.2-2"}}&permil; died<span class="small"><sup>2</sup></span></li>
+    </ul>
+    <mat-divider></mat-divider>
+    <div class="small" style="margin-top: 10px;"> 
+        <p><sup>1</sup> should stay below the number of ICU and CCB available in your country. 
+            See <a href="https://en.wikipedia.org/wiki/List_of_countries_by_hospital_beds">
+                Wikipedia article <em>List of countries by hospital beds</em></a></p>
+        <p><sup>2</sup> to be compared with the estimated mortality of your country from the last last years 
+        (before the Corona virus), which is 
+        {{1000 * currentCountry.mortalityRate / currentCountry.population | number:"1.2-2"}}&permil; 
+    of population per year. 
+    See <a href="https://www.wolframalpha.com/input/?i=annual+deaths" target="_blank">Wolfram Alpha</a>.
+</p>
+    </div>
+    </div>
+    <h2>Symbols</h2>
+    For every day since the beginning of case reporting, we define the following indicators:
+    <dl>
+        <dt>&Delta; - new cases reported for that day</dt>
+        <dt>&Sigma; - total cases reported until and including on that day</dt>
+        <dt>R - cases known as recovered on that day</dt>
+        <dt>A - cases known to be on that day</dt>
+        <dt>C - cases known as critical on that day (subset of A)</dt>
+        <dt>&Theta; - total deaths reported until and including that day</dt>
+        <dt>R<sub>0</sub> - reproduction number, reverse calculated from the data of the last 5 days.
+        This is the expected average number of persons which will be infected by one infected person
+        </dt>
+    </dl>
+    <h2>Math</h2>
+    <p>
+    We are using a very simple but illustrative model to simulate what could happen in the future, based on the logistic equation.
+    </p>
+    <h3>Reproduction rate and number</h3>
+    <p>
+        Let us assume that an infected person, on average, 
+        is encountering every day a number &rho; of other persons.
+        For each person he encounters, there is a 
+        probability &phi; of infecting him (for instance if they shake hands, 
+        or the infected person is sneezing while they meet etc.).
+    </p>
+    <p>
+        <b>Definition:</b>The reproduction rate r<sub>0</sub> is the number of new infections
+        caused directly by an infected person during one day, if all other persons around him are susceptible: 
+        r<sub>0</sub>= &rho; &times; &phi;
+    </p>
+    <p>
+        If on day n there are A<sub>n</sub> (A from Active) contagious persons, and assuming all of them meet only susceptible persons (meaning: 
+        persons which can be infected - i.e. they are not yet infected, nor immune) - then during one day, the 
+        new number of infected persons is: 
+    </p>
+    <p style="text-align: center;">
+        &Delta;<sub>n+1</sub> = r<sub>0</sub> &times; A<sub>n</sub>
+    </p>
+    <p>
+        <b>Notes:</b> <br>
+        1. If r<sub>0</sub> &le; 1, the disease cannot spread and disappears.<br>
+        2. The reproduction rate is influenced by the social habits and behavior of the people 
+        (by &rho;: how many 
+        other people are met; by &phi;: do they shake hands? Do they embrace each other?
+        Do they wash their hands on a regular base?).<br>
+        3. It is also influenced by the disease itself (by &rho;: how it is transmitted?).<br>
+        4. It is NOT influenced by the status of the other persons - i.e. if they are already immune or not. 
+    </p>
+    <p>
+        <b>Definition:</b> The <b>Infection period &tau;</b> is the duration an infected person remains
+        contagious and can infect others. 
+    </p>
+    <p>
+        <b>Definition:</b> The <b>reproduction number R<sub>0</sub></b> is the number of persons directly infected
+          by an infected person during his infection period.
+    </p>
+    <p class="center">
+        R<sub>0</sub> = r<sub>0</sub> &times; &tau;
+    </p>
+    <p> 
+        Both r<sub>0</sub> and R<sub>0</sub> are defined under ideal conditions: it is assumed that 
+        all other persons are susceptible. This is the case in the beginning of an epidemy, when the number of
+        active and immune persons is negligible. 
+        But after some time, our imaginary infected person will not only encounter susceptible persons, but also 
+        active or immune persons.
+        If the population of the country is P, the number of current infected persons is A (active), 
+        R the recovered persons,
+        and D the persons who died, then the number of susceptible 
+        persons is S = P - A - R - D, and the probability for our imaginary infected person to encounter a 
+        susceptible person is s = S / P. The probability s will decrease from 1 towards 0 during an epidemy (we will see later that 
+        often it will not reach 0).<br>
+        The newly infected persons on day n can be written as:
+    </p>
+    <p class="center">
+        &Delta;<sub>n+1</sub> = r<sub>0</sub> * A<sub>n</sub> * s<sub>n</sub><br>
+        s<sub>n</sub> = (P - A<sub>n</sub> - R<sub>n</sub> -D<sub>n</sub>) / P
+    </p>
+    <p>
+        The number of recovered persons on day n can be written as 
+    </p>
+    <div class="center">
+        R<sub>n</sub> = R<sub>n-1</sub> + &Delta;<sub>n-&tau;</sub> &nbsp;&nbsp;&nbsp;for n &ge; &tau;<br>
+        and <br>
+        R<sub>n</sub> = R<sub>n-1</sub> &nbsp;&nbsp;&nbsp;for 0 &lt; n &lt; &tau;
+    </div>
+    And the number of infected persons on day n is:
+    <p class="center">
+        A<sub>n</sub> = A<sub>n-1</sub> + &Delta;<sub>n</sub> - &Delta;<sub>n-&tau;</sub> &nbsp;&nbsp;&nbsp;for n &ge; &tau;<br>
+        and<br>
+        A<sub>n</sub> = A<sub>n-1</sub> + &Delta;<sub>n</sub> &nbsp;&nbsp;&nbsp;for 0 &lt; n &lt; &tau;
+    </p>
+    For now we assume there are no deaths:
+    <p class="center">
+        D<sub>n</sub> = 0 &nbsp;&nbsp;&nbsp;for all n
+    </p>
+    <p>
+        Our result is a slightly more complex form of the 
+        <a href="https://en.wikipedia.org/wiki/Logistic_map">logistic map</a>. 
+        Below we plot the series for the 2 indicators: A<sub>n</sub> and R<sub>n</sub>. 
+        We quickly observe that the values of R and S have an asymptotic behavior so that not the whole population
+        will be infected. A - the number of simultaneously ill persons - is growing exponential in the beginning, 
+        reaches a maximum and the falls down exponentially back to 0. The amplitude of this maximum, the point 
+        in time when is reached and the final values of R and S depends on the two unknown parameters of our
+        series: &tau; and r<sub>0</sub>.
+    </p>
+    <p>Take your time and try out a few combinations for the values for of &tau; and r<sub>0</sub>. 
+        The population P is chosen to be that 
+        of {{currentCountry.country}}: {{currentCountry.population | number:"1.0-0"}}.
+    </p>
+    <div style="display: flex; flex-direction: row; flex-wrap: wrap; margin:-15px">
+        <div style="white-space: nowrap; margin-left: 15px;">
+            R<sub>0</sub>: {{reproductionNumber | number:"1.1-1"}}
+            <mat-slider
+                class="example-margin"
+                [max]="reproductionNumberMax"
+                [min]="reproductionNumberMin"
+                [step]="reproductionNumberStep"
+                [thumbLabel]=true
+                [(ngModel)]="reproductionNumber"
+                (change)="createMathModelSeries()"
+                >
+            </mat-slider>
+        </div>
+        <div style="white-space: nowrap; margin-left: 15px;">
+            &tau;: {{infectionPeriod | number:"1.0-0"}} days
+            <mat-slider
+                class="example-margin"
+                [max]="infectionPeriodMax"
+                [min]="infectionPeriodMin"
+                [step]="infectionPeriodStep"
+                [thumbLabel]=true
+                [(ngModel)]="infectionPeriod"
+                (change)="createMathModelSeries()"
+                >
+            </mat-slider>
+        </div>
+    </div>
+    <div style="height: 40vh; margin-bottom: 70px;">
+        <ngx-charts-line-chart
+            [legend]="'true'"
+            [roundDomains]=true
+            [legendPosition]="'below'"
+            [showXAxisLabel]=true
+            [showYAxisLabel]=true
+            [xAxis]=true
+            [yAxis]=true
+            [xAxisLabel]="'days from start'"
+            [yAxisLabel]="'persons'"
+            [yAxisTickFormatting]="yAxisTickFormattingFn"
+            [results]="mathModelSeries"
+            [timeline]=false>
+        </ngx-charts-line-chart>
+    </div>
+    <p></p>
+    <p style="font-size:larger">Simulation</p>
+    <p>
+    All measures taken by the government of your country try to influence the basic reproduction rate r<sub>0</sub> in such a way that 
+    the health system is not getting overloaded. In particular, the critical cases C defined above shall not
+    exceed the ICUs (Intensive Care Units) available in your country.
+    At the same time, the cases needing hospitalization shall not exceed the number of available beds in the hospitals.<br>
+    From data analysed up to now, it seems that about 4.5% of all cases needs hospitalization, and about 25% of them will need intensive care. One of the sources 
+    of information is the <a href="https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Modellierung_Deutschland.pdf?__blob=publicationFile">
+    Modellierung von Beispielszenarien der SARS-CoV-2-Epidemie 2020 in Deutschland</a>.
+    </p>
+    <p>
+    Below we run a simulation which starts with the initial values as currently reported for {{currentCountry.country}},
+    and adjusts the reproduction rate R<sub>0</sub> every 14 days to a new value, so that
+    the active infections will not exceed a value you choose, but will try to stay as high as possible below that number:<br>
+    </p>
+    <div style="height: 40vh;margin-left:-15px;margin-right:-15px">
+        <ngx-charts-line-chart
+            [roundDomains]=true
+            [legendPosition]="'below'"
+            [showXAxisLabel]=false
+            [showYAxisLabel]=true
+            [xAxis]=true
+            [yAxis]=true
+            [xAxisLabel]="'days from start'"
+            [yAxisLabel]="'persons'"
+            [yAxisTickFormatting]="yAxisTickFormattingFn"
+            [results]="simulationSeries"
+            [timeline]=false>
+        </ngx-charts-line-chart>
+    </div>
+    <div style="height: 40vh;margin-left:-15px;margin-right:-15px">
+        <ngx-charts-line-chart
+            [roundDomains]=true
+            [legendPosition]="'below'"
+            [showXAxisLabel]=true
+            [showYAxisLabel]=true
+            [xAxis]=true
+            [yAxis]=true
+            [xAxisLabel]="'days from start'"
+            [yAxisLabel]="'reproduction number'"
+            [yScaleMax]="'10'"
+            [yAxisTicks]="reproductionTicks"
+            [results]="infectionRateSeries"
+            [timeline]=false>
+        </ngx-charts-line-chart>
+    </div>
+    <div style="display: flex; flex-direction:row; flex-wrap: wrap; margin:-15px">
+        <mat-form-field style="margin-left: 20px; width: 140px">
+            <mat-label>Maximal Active infections:</mat-label>
+            <input matInput placeholder="Ex. 1000000" [(ngModel)]="desiredMaxActive">
+        </mat-form-field>
+        <div style="white-space: nowrap;margin-left: 15px;">
+            <button mat-icon-button color="accent"  matTooltip="Reset initial values" (click)="resetSimulationHistory()">
+                <mat-icon>refresh</mat-icon>
+            </button>
+        </div>
+        <div style="white-space: nowrap;margin-left: 15px;">
+            <button mat-icon-button color="accent"  matTooltip="Start simulation" (click)="createSimulationSeries()">
+                <mat-icon>play_arrow</mat-icon>
+            </button>
+        </div>
+    </div>
+</div>

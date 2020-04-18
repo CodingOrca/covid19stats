@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-
+import { YesterdayData, CountryInfo, CaseData} from './data-model';
 @Injectable({
   providedIn: 'root'
 })
@@ -12,7 +12,7 @@ export class DataService {
 
   async getYesterdaysWorldData(): Promise<YesterdayData>
   {
-    let caseData = await this.http.get<YesterdayData>("https://corona.lmao.ninja/all").toPromise();
+    let caseData = await this.http.get<YesterdayData>("https://corona.lmao.ninja/v2/all").toPromise();
     caseData.country = "World";
     caseData.countryInfo = new CountryInfo();
     caseData.countryInfo.flag = "assets/globe_PNG62.png"
@@ -58,7 +58,7 @@ export class DataService {
   }
 
   async getYesterdaysData(): Promise<YesterdayData[]> {
-    return await this.http.get<YesterdayData[]>("https://corona.lmao.ninja/yesterday?sort=cases").toPromise();
+    return await this.http.get<YesterdayData[]>("https://corona.lmao.ninja/v2/countries?yesterday=true").toPromise();
   }
 
   async getAllHistoricalData(): Promise<Map<string,CaseData[]>>
@@ -102,7 +102,7 @@ export class DataService {
 
   private async getHistoricalWorldData(): Promise<CaseData[]>
   {
-    let timeline = await this.http.get<HistTimeline>(`https://corona.lmao.ninja/v2/historical/All`).toPromise();
+    let timeline = await this.http.get<HistTimeline>(`https://corona.lmao.ninja/v2/historical/All?lastdays=all`).toPromise();
     let result = new Array<CaseData>();
     let keys = Object.keys(timeline.cases);
 
@@ -121,32 +121,20 @@ export class DataService {
 
     return result;
   }
-}
 
-export class CaseData {
-  updated: Date;
-
-  country: string; 
-  cases: number;
-  deaths: number;
-  recovered: number;
-  get active(): number {
-    return this.cases - this.recovered - this.deaths;
-  }
-
-  delta: number;
-  doublingTime: number;
-  growthRate: number;
-
-  public copyFrom(c: CaseData) {
-    this.country = c.country;
-    this.cases = c.cases;
-    this.deaths = c.deaths;
-    this.recovered = c.recovered;
-    this.updated = new Date(c.updated);
-    this.delta = c.delta;
-    this.doublingTime = c.doublingTime;
-    this.growthRate = c.growthRate;
+  public async getMortalityRates(): Promise<Map<string,number>> 
+  {
+    let content = await this.http.get('assets/mortalityRate.csv', {responseType: 'text'}).toPromise();
+    let splits = content.toString().split('\n');
+    let result = new Map<string,number>();
+    for(let i = 0; i < splits.length; i++) {
+      let kv = splits[i].split('|');
+      if(kv.length != 2) continue;
+      let c = kv[0].trim();
+      let n = Number.parseInt(kv[1].trim());
+      result.set(c,n);
+    }
+    return result;
   }
 }
 
@@ -176,27 +164,3 @@ class HistTimeline {
   recovered: any;
 }
 
-export class CountryInfo {
-  iso2: string;
-  iso3: string;
-  lat: number;
-  long: number;
-  flag: string;
-}
-
-export class YesterdayData {
-  updated: number;
-  country: string;
-  countryInfo: CountryInfo;
-  cases: number;
-  todayCases: number;
-  deaths: number;
-  todayDeaths: number;
-  recovered: number;
-  active: number;
-  critical: number;
-  casesPerOneMillion: number;
-  deathsPerOneMillion: number;
-  tests: number;
-  testsPerOneMillion: number; 
-}

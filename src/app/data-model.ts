@@ -1,0 +1,149 @@
+export class CaseData {
+    updated: Date;
+  
+    country: string; 
+    cases: number;
+    deaths: number;
+    recovered: number;
+    get active(): number {
+      return this.cases - this.recovered - this.deaths;
+    }
+  
+    delta: number;
+    reproductionNumber: number;
+    infectionRate: number;
+  
+    public copyFrom(c: CaseData) {
+      this.country = c.country;
+      this.cases = c.cases;
+      this.deaths = c.deaths;
+      this.recovered = c.recovered;
+      this.updated = new Date(c.updated);
+      this.delta = c.delta;
+      this.reproductionNumber = c.reproductionNumber;
+      this.infectionRate = c.infectionRate;
+    }
+  }
+  
+  export class CountryInfo {
+    iso2: string;
+    iso3: string;
+    lat: number;
+    long: number;
+    flag: string;
+  }
+  
+  export class YesterdayData {
+    updated: number;
+    country: string;
+    countryInfo: CountryInfo;
+    cases: number;
+    todayCases: number;
+    deaths: number;
+    todayDeaths: number;
+    recovered: number;
+    active: number;
+    critical: number;
+    casesPerOneMillion: number;
+    deathsPerOneMillion: number;
+    tests: number;
+    testsPerOneMillion: number; 
+  }
+
+  export class SummaryViewData extends CaseData {
+    todayCases: number;
+    todayDeaths: number;
+    critical: number;
+   
+    tests: number;
+    casesPerMille: number;
+    deathsPerMille: number;
+    testsPerMille: number; 
+  
+    get population(): number {
+      return this.cases * 1000 / this.casesPerMille;
+    }
+  
+    get populationScaleFactor(): number {
+      return 1000 / this.testsPerMille;
+    }
+  
+    get populationScaledCasesPerMille(): number {
+      return this.casesPerMille * this.populationScaleFactor;
+    }
+  
+    get populationScaledActivePerMille(): number {
+      return this.activePerMille * this.populationScaleFactor;
+    }
+  
+    get populationScaledRecoveredPerMille(): number {
+      return this.recoveredPerMille * this.populationScaleFactor;
+    }
+  
+    get populationScaledDeathsPerMille(): number {
+      return this.deathsPerMille * this.populationScaleFactor;
+    }
+  
+    get populationScaledCases(): number {
+      return this.cases * this.populationScaleFactor;
+    }
+  
+    get populationScaledActive(): number {
+      return this.active * this.populationScaleFactor;
+    }
+  
+    get populationScaledRecovered(): number {
+      return this.recovered * this.populationScaleFactor;
+    }
+  
+    get populationScaledDeaths(): number {
+      return this.deaths * this.populationScaleFactor;
+    }
+  
+    get recoveredPerMille(): number {
+      return 1000 * this.recovered / this.population;
+    }
+  
+    get activePerMille(): number {
+      return 1000 * this.active / this.population;
+    }
+
+    get criticalPerMille(): number {
+      return 1000 * this.critical / this.population;
+    }
+  
+    flag: string;
+  
+    recoveredDelta: Tendency;
+    deathsDelta: Tendency;
+    activeDelta: Tendency;
+    deltaDelta: number;
+    deltaDeaths: number;
+    infectionRateDelta: Tendency;
+    reproductionNumberDelta: Tendency;
+  
+    mortalityRate: number;
+  
+    get casesPercentOfTested(): number {
+      return 100 * this.cases / this.tests;
+    }
+  
+    get mortalityRatePerDay(): number {
+      return Math.round(this.mortalityRate / 365);    
+    }
+  }
+  
+  // icons: arrow_drop_up, _drop_down or _left or _right
+export enum Tendency {
+  up, down, unchanged
+}
+
+export class DataSeries {
+  name: string;
+  series: Array<DataPoint>;
+}
+
+export class DataPoint {
+  name: Date | number;
+  value: number;
+}

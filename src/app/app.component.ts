@@ -1,9 +1,11 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { DataService, CaseData, YesterdayData } from 'src/app/novelcovid.service'
-import {MatTableDataSource} from '@angular/material/table';
-import {MatSort, SortDirection} from '@angular/material/sort';
+import { DataService } from 'src/app/novelcovid.service';
+import { SummaryViewData, YesterdayData, CaseData, DataSeries, DataPoint} from './data-model';
+import { MatTableDataSource} from '@angular/material/table';
+import { MatSort, SortDirection} from '@angular/material/sort';
 import { ViewEncapsulation } from '@angular/core';
-import { trigger, state, style, animate, transition } from '@angular/animations';
+import { MatDialog } from '@angular/material/dialog';
+import { InfoDialog } from './info-dialog';
 
 @Component({
   selector: 'app-root',
@@ -16,35 +18,63 @@ export class AppComponent implements OnInit, AfterViewInit{
 
   @ViewChild(MatSort, {static: true}) matSort: MatSort;
 
+  private _perMillSummary: boolean = true;
+  get perMillSummary(): boolean {
+    return this._perMillSummary;
+  }
+  set perMillSummary(value: boolean)
+  {
+    this._perMillSummary = value;
+    localStorage.setItem("perMillSummary", value.toString());
+  }
+
+  infectiousPeriod: number = 14;
   title = 'COVID-19';
   currentCountry: SummaryViewData;
+  today: Date = new Date();
 
-  // displayedColumns: string[] = ['country', 'cases', 'delta', 'active', 'recovered', 'deaths', 'growthRate', 'doublingTime'];
   displayedColumns: string[] = ['country', 'cases', 'active', 'critical', 'deaths'];
   tableData: MatTableDataSource<SummaryViewData> = new MatTableDataSource();
   allHistoricalData: Map<string,CaseData[]>;
 
   currentHistory: Array<CaseData>;
   currentCasesSeries: Array<DataSeries>;
-  currentDoublingSeries: Array<DataSeries>;
+  currentReproductionSeries: Array<DataSeries>;
   currentLogSeries: Array<DataSeries>;
   currentDeltaSeries : Array<DataPoint>;
 
   public yAxisTickFormattingFn = this.yAxisTickFormatting.bind(this);
   yAxisTickFormatting(value: number) {
     let suffix = "";
-    if(value > 1000)
+    let v = value;
+    if(v >= 1000)
     {
       suffix = "k";
-      value = value / 1000;
+      v = value / 1000;
     };
-    return `${Math.round(value)}${suffix}`;
+    return `${Math.round(v)}${suffix}`;
   }
 
   public logAxisTickFormattingFn = this.logAxisTickFormatting.bind(this);
   logAxisTickFormatting(value) {
     let l = Math.round(Math.exp(value)); 
     return this.exponentialNotationOf(l);
+  }
+
+  private exponentialNotationOf(l: number) {
+    switch (l) {
+      case 1: return "1";
+      case 10: return "10";
+      case 100: return "10^2";
+      case 1000: return "10^3";
+      case 10000: return "10^4";
+      case 100000: return "10^5";
+      case 1000000: return "10^6";
+      case 10000000: return "10^7";
+      case 100000000: return "10^8";
+      case 1000000000: return "10^9";
+    }
+    return l;
   }
 
   private pad(num:number, size:number): string {
@@ -73,17 +103,15 @@ export class AppComponent implements OnInit, AfterViewInit{
   xAxisLabel: string = 'Date';
   xLogLabel: string = "log(cases)"
   yAxisLabel: string = 'Cases [thousands]';
-  dAxisLabel: string = "Doubling Time [days]";
+  dAxisLabel: string = "Reproduction number";
   gAxisLabel: string = "New cases";
   yLogLabel: string = "log(new cases)";
-  xLogTicks: number[] = [Math.log(10), Math.log(100), Math.log(1000), Math.log(10000), Math.log(100000), Math.log(1000000)];
-  yLogTicks: number[] = [0, Math.log(10), Math.log(100), Math.log(1000), Math.log(10000), Math.log(100000)];
+  yLogTicks: number[] = [Math.log(1000), Math.log(10000), Math.log(100000), Math.log(1000000)];
   linTicks: number[] = [10, 100, 1000, 10000, 100000];
+  reproductionTicks: number[] = [0,1,2,3,4,5,6,7,8,9];
   timeline: boolean = false;
-  xLogScaleMin: number = Math.log(10);
-  xLogScaleMax: number = Math.log(10000000);
-  yLogScaleMin: number = 0;
-  yLogScaleMax: number = Math.log(1000000);
+  yLogScaleMin: number = Math.log(1000);
+  yLogScaleMax: number = Math.log(10000000);
 
 
   deltaTimeTicks: Array<Number | Date> = [new Date(2020,0,22), Date.now()];
@@ -114,42 +142,27 @@ export class AppComponent implements OnInit, AfterViewInit{
 
   totalCaption: string = "Cases over time";
   deltaCaption: string = "New cases per day";
-  logCaption: string = "new vs. total cases (logarithmic)";
-  doublingCaption: string = "Doubling time over time";
+  logCaption: string = "Cases (logarithmic) over time";
+  reproductionCaption: string = "Reproduction Number over time";
   
-  xTimeScaleMin: Date = new Date(Date.now() - 30 * 1000 * 60 * 60 * 24);
+  xTimeScaleMin: Date = new Date(Date.now() - 42 * 1000 * 60 * 60 * 24);
   xTimeScaleMax: Date = new Date(Date.now() - 1 * 1000 * 60 * 60 * 24);
 
   colorScheme = {
-    domain: [ '#E44D25', '#5AA454', '#E4C454','#CFC0BB', '#7aa3e5', '#a8385d', '#aae3f5']
+    domain: [ '#FF5333', '#5AA454',  '#CFC0BB', '#7aa3e5', '#a8385d', '#aae3f5']
   };
 
-  constructor(private dataService: DataService) {
-  }
-
-  private exponentialNotationOf(l: number) {
-    switch (l) {
-      case 1: return "1";
-      case 10: return "10";
-      case 100: return "10^2";
-      case 1000: return "10^3";
-      case 10000: return "10^4";
-      case 100000: return "10^5";
-      case 1000000: return "10^6";
-      case 10000000: return "10^7";
-      case 100000000: return "10^8";
-      case 1000000000: return "10^9";
-    }
-    return l;
+  constructor(private dataService: DataService, public dialog: MatDialog) {
   }
 
   async ngOnInit(): Promise<void> {
 
-    let country = await this.dataService.getYesterdaysWorldData();
+    this._perMillSummary = JSON.parse(localStorage.getItem("perMillSummary"));
 
     // get ALL historical data, of all provinces:
     this.allHistoricalData = await this.dataService.getAllHistoricalData();
     let yesterdayData = await this.dataService.getYesterdaysData();
+    let mortalityRates = await this.dataService.getMortalityRates();
 
     this.maxCases = 1;
     this.maxDelta = 10000;
@@ -180,6 +193,9 @@ export class AppComponent implements OnInit, AfterViewInit{
       }
       this.calculateDeltaAndCo(countryHistory);
       let s = this.CreateSummaryViewData(countryDetails, countryHistory);
+      if(mortalityRates.has(cn)) {
+        s.mortalityRate = mortalityRates.get(cn);        
+      }
       results.push(s);
     }
 
@@ -187,7 +203,11 @@ export class AppComponent implements OnInit, AfterViewInit{
     this.tableData = new MatTableDataSource(results.sort((x, y) => x.cases > y.cases ? -1 : 1));
     this.tableData.sort = this.matSort;
 
-    this.selectCountry(this.tableData.data[0]);
+    this.selectedIndexChange(0);
+    let s = localStorage.getItem("selectedCountry");
+    let c = this.tableData.data.find(e => e.country == s);
+    if(c == null) c = this.tableData.data[0];
+    this.selectCountry(c);
   }
 
   ngAfterViewInit() {
@@ -200,19 +220,20 @@ export class AppComponent implements OnInit, AfterViewInit{
     let s = new SummaryViewData();
     s.copyFrom(countryHistory[countryHistory.length - 1]);
     s.deltaDelta = s.delta - countryHistory[countryHistory.length - 2].delta;
+    s.deltaDeaths = s.deaths - countryHistory[countryHistory.length - 2].deaths;
     s.activeDelta = s.active - countryHistory[countryHistory.length - 2].active;
     s.recoveredDelta = s.recovered - countryHistory[countryHistory.length - 2].recovered;
     s.deathsDelta = s.deaths - countryHistory[countryHistory.length - 2].deaths;
-    s.doublingTimeDelta = s.doublingTime - countryHistory[countryHistory.length - 2].doublingTime;
-    s.growthRateDelta = s.growthRate - countryHistory[countryHistory.length - 2].growthRate;
+    s.reproductionNumberDelta = s.reproductionNumber - countryHistory[countryHistory.length - 2].reproductionNumber;
+    s.infectionRateDelta = s.infectionRate - countryHistory[countryHistory.length - 2].infectionRate;
     if(countryDetails != null) {
       s.todayCases = countryDetails.todayCases;
       s.todayDeaths = countryDetails.todayDeaths;
       s.critical = countryDetails.critical;
       s.tests = countryDetails.tests;
-      s.testsPerOneMillion = countryDetails.testsPerOneMillion;
-      s.casesPerOneMillion = countryDetails.casesPerOneMillion;
-      s.deathsPerOneMillion = countryDetails.deathsPerOneMillion;
+      s.testsPerMille = countryDetails.testsPerOneMillion  / 1000.0;
+      s.casesPerMille = countryDetails.casesPerOneMillion / 1000.0;
+      s.deathsPerMille = countryDetails.deathsPerOneMillion / 1000.0;
       s.flag = countryDetails.countryInfo.flag;   
     }
     return s;
@@ -221,24 +242,25 @@ export class AppComponent implements OnInit, AfterViewInit{
   calculateDeltaAndCo(countryHistory: CaseData[]) {
     let i: number = 0;
     for (let entry of countryHistory) {
-      entry.doublingTime = 0;
-      if (i >= 4) {
-        entry.doublingTime = this.CalculateDT(countryHistory, i-4, i);
-        if(entry.doublingTime == -1)
-        {
-          entry.doublingTime = history[i - 1].doublingPoint;
-        }
-      }
       entry.delta = 0;
-      entry.growthRate = 0;
-      if(i > 0)
+      entry.infectionRate = 0;
+      if(i > 0 && entry.active > 1000)
       {
-        let j = Math.min(4,i);
-        entry.delta = entry.cases - countryHistory[i-j].cases;
-        if(countryHistory[i-j].cases > 0) {
-          entry.growthRate = 100 *  entry.delta / countryHistory[i-j].cases / j;
+        entry.delta = entry.cases - countryHistory[i-1].cases;
+        let j = Math.min(5,i);
+        for(let k = i-j; k < i; k++)
+        {
+          if(countryHistory[k].active > 0) {
+            // average of the last 'j' daily growth factors;
+            // daily growth factor is defined as 
+            // the number of new infections today (delta) caused by one hundred yesterdays infected (active)
+            let gDelta = countryHistory[k+1].cases - countryHistory[k].cases;
+            entry.infectionRate += 100 *  gDelta / countryHistory[k].active / j;
+          }
         }
       }
+      //entry.reproductionNumber = Math.pow(1+entry.infectionRate/100, this.infectiousPeriod) - 1;
+      entry.reproductionNumber = entry.infectionRate / 100 * this.infectiousPeriod;
       if(entry.country != "World" && entry.country != "USA") {
         if(this.maxCases < entry.cases) this.maxCases = entry.cases;
         // if(this.maxDelta < entry.delta) this.maxDelta = entry.delta;
@@ -262,9 +284,9 @@ export class AppComponent implements OnInit, AfterViewInit{
     recoveredCases.name = "Recovered";
     recoveredCases.series = new Array<DataPoint>();
 
-    let doublingTimes = new DataSeries();
-    doublingTimes.name = "Doubling times";
-    doublingTimes.series = new Array<DataPoint>();
+    let reproductionNumbers = new DataSeries();
+    reproductionNumbers.name = "Reproduction number";
+    reproductionNumbers.series = new Array<DataPoint>();
 
     let logarithmicValues = new DataSeries();
     logarithmicValues.name = "Cases";
@@ -278,13 +300,13 @@ export class AppComponent implements OnInit, AfterViewInit{
       deathCases.series.push(AppComponent.CreateDataPoint(entry.updated, entry.deaths));
       activeCases.series.push(AppComponent.CreateDataPoint(entry.updated, entry.active));
 
-      doublingTimes.series.push(AppComponent.CreateDataPoint(entry.updated, entry.doublingTime));
+      reproductionNumbers.series.push(AppComponent.CreateDataPoint(entry.updated, entry.reproductionNumber));
 
       if(i > 0 && entry.cases > 0 && entry.delta > 0)
       {
         let logarithmicPoint = new DataPoint();
-        logarithmicPoint.name = Math.log(entry.cases);
-        logarithmicPoint.value = Math.log(entry.delta);
+        logarithmicPoint.name = entry.updated;
+        logarithmicPoint.value = Math.log(entry.cases);
         logarithmicValues.series.push(logarithmicPoint);
       }
 
@@ -298,12 +320,12 @@ export class AppComponent implements OnInit, AfterViewInit{
       i++;
     }
     this.currentCasesSeries = new Array<DataSeries>();
-    this.currentCasesSeries.push(deathCases);
-    this.currentCasesSeries.push(recoveredCases);
     this.currentCasesSeries.push(activeCases);
+    this.currentCasesSeries.push(recoveredCases);
+    this.currentCasesSeries.push(deathCases);
     
-    this.currentDoublingSeries = new Array<DataSeries>();
-    this.currentDoublingSeries.push(doublingTimes);
+    this.currentReproductionSeries = new Array<DataSeries>();
+    this.currentReproductionSeries.push(reproductionNumbers);
 
     this.currentLogSeries = new Array<DataSeries>();
     this.currentLogSeries.push(logarithmicValues)
@@ -368,6 +390,7 @@ export class AppComponent implements OnInit, AfterViewInit{
   }
 
   selectCountry(country: SummaryViewData) {
+    localStorage.setItem("selectedCountry", country.country);
     this.currentCountry = country;
     this.tableData.filter = "";
     this.tableData._updateChangeSubscription();
@@ -376,41 +399,38 @@ export class AppComponent implements OnInit, AfterViewInit{
 
   openGitHub()
   {
-    window.open("https://github.com/CodingOrca/covid19stats/blob/master/README.md");
+//    window.open("https://github.com/CodingOrca/covid19stats/blob/master/README.md");
+    const dialogRef = this.dialog.open(InfoDialog, {
+      minWidth: '100vw',
+      height: "100vh",
+      data: {country: this.currentCountry, history: this.currentHistory}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      this._perMillSummary = JSON.parse(localStorage.getItem("perMillSummary"));
+    });
   }
-}
 
-export class DataSeries {
-  name: string;
-  series: Array<DataPoint>;
-}
-
-export class DataPoint {
-  name: Date | number;
-  value: number;
-}
-
-// icons: arrow_drop_up, _drop_down or _left or _right
-export enum Tendency {
-  up, down, unchanged
-}
-
-export class SummaryViewData extends CaseData {
-  todayCases: number;
-  todayDeaths: number;
-  critical: number;
- 
-  tests: number;
-  casesPerOneMillion: number;
-  deathsPerOneMillion: number;
-  testsPerOneMillion: number; 
-
-  flag: string;
-
-  recoveredDelta: Tendency;
-  deathsDelta: Tendency;
-  activeDelta: Tendency;
-  deltaDelta: number;
-  doublingTimeDelta: Tendency;
-  growthRateDelta: Tendency;
+  selectedIndexChange(index: number)
+  {
+    switch(index) {
+      case 0:
+        this.displayedColumns = ['country', 'cases', 'delta', 'deaths', 'reproductionNumber'];
+        break;
+      case 1:
+        this.displayedColumns = ['country', 'cases', 'active', 'recovered', 'deaths'];
+        break;
+      case 2:
+        this.displayedColumns = ['country', 'cases', 'delta', 'infectionRate', 'reproductionNumber'];
+        break;
+      case 3:
+        this.displayedColumns = ['country', 'cases', 'delta', 'infectionRate', 'reproductionNumber'];
+        break;
+      case 3:
+        this.displayedColumns = ['country', 'cases', 'delta', 'infectionRate'];
+        break;
+    }
+    this.tableData._updateChangeSubscription();
+  }
 }
