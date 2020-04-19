@@ -27,23 +27,23 @@
               <div class="wrap-item">
                 <div class="small">&Delta; - new cases:</div>
                 <b>{{currentCountry.delta}}</b>
-                <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta > 0" class="warn">trending_up</mat-icon>
-                <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta < 0" class="green">trending_down</mat-icon>
-                <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta == 0">trending_flat</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta > 0" class="warn">arrow_drop_down</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta < 0" class="green">arrow_drop_up</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta == 0">arrow_right</mat-icon>
               </div>
               <div class="wrap-item">
                 <div class="small with-subscript">R<sub>0</sub> - Reproduction number</div>
                 <b>{{currentCountry.reproductionNumber | number:'1.1-1' }}</b>
-                <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta > 0" class="warn">trending_up</mat-icon>
-                <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta < 0" class="green">trending_down</mat-icon>
-                <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta == 0">trending_flat</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta > 0" class="warn">arrow_drop_down</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta < 0" class="green">arrow_drop_up</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta == 0">arrow_right</mat-icon>
               </div>
               <div class="warn wrap-item">
                 <div class="small">A - active cases:</div>
                 <b>{{currentCountry.active}}</b>
-                <mat-icon [inline]=true *ngIf="currentCountry.activeDelta > 0" class="warn">trending_up</mat-icon>
-                <mat-icon [inline]=true *ngIf="currentCountry.activeDelta < 0" class="green">trending_down</mat-icon>
-                <mat-icon [inline]=true *ngIf="currentCountry.activeDelta == 0">trending_flat</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.activeDelta > 0" class="warn">arrow_drop_down</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.activeDelta < 0" class="green">arrow_drop_up</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.activeDelta == 0">arrow_right</mat-icon>
               </div>
               <div class="green wrap-item">
                 <div class="small">R - recovered:</div>
@@ -106,7 +106,7 @@
         <ng-template mat-tab-label>&Delta;</ng-template>
         <ng-template matTabContent>
           <div class="chart">
-            <ngx-charts-bar-vertical
+            <ngx-charts-bar-vertical-stacked
               [scheme]="colorScheme"
               [legend]="legend"
               [barPadding]=1
@@ -123,7 +123,7 @@
               [yAxisTickFormatting]="yAxisTickFormattingFn"
               [results]="currentDeltaSeries"
               (select)="onSelect($event)">
-            </ngx-charts-bar-vertical>
+            </ngx-charts-bar-vertical-stacked>
           </div>
         </ng-template>
       </mat-tab>
@@ -223,7 +223,7 @@
 
     <ng-container matColumnDef="reproductionNumber">
       <mat-footer-cell *matFooterCellDef mat-sort-header class="align-right-cell"> <div style="margin-bottom: -4px;">R<sub>0</sub></div> </mat-footer-cell>>
-      <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.reproductionNumber | number:'1.2-2'}}</mat-cell>>
+      <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.reproductionNumber | number:'1.1-1'}}</mat-cell>>
     </ng-container>
 
     <mat-row *matRowDef="let row; columns: displayedColumns" 

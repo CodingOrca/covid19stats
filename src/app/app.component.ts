@@ -29,6 +29,10 @@ export class AppComponent implements OnInit, AfterViewInit{
   }
 
   infectiousPeriod: number = 14;
+  daysForAverage: number = 5;
+  xTimeScaleMin: Date = new Date(Date.now() - 75 * 1000 * 60 * 60 * 24);
+  xTimeScaleMax: Date = new Date(Date.now() - 1 * 1000 * 60 * 60 * 24);
+  
   title = 'COVID-19';
   currentCountry: SummaryViewData;
   today: Date = new Date();
@@ -41,7 +45,7 @@ export class AppComponent implements OnInit, AfterViewInit{
   currentCasesSeries: Array<DataSeries>;
   currentReproductionSeries: Array<DataSeries>;
   currentLogSeries: Array<DataSeries>;
-  currentDeltaSeries : Array<DataPoint>;
+  currentDeltaSeries : Array<DataSeries>;
 
   public yAxisTickFormattingFn = this.yAxisTickFormatting.bind(this);
   yAxisTickFormatting(value: number) {
@@ -114,9 +118,9 @@ export class AppComponent implements OnInit, AfterViewInit{
   yLogScaleMax: number = Math.log(10000000);
 
 
-  deltaTimeTicks: Array<Number | Date> = [new Date(2020,0,22), Date.now()];
+  deltaTimeTicks: Array<string | Date> = [new Date(2020,0,22), new Date()];
   private setDeltaTimeTicks() {
-    this.deltaTimeTicks = new Array<Number | Date>();
+    this.deltaTimeTicks = new Array<string | Date>();
     for(let i = 0; i < this.currentDeltaSeries.length; i++) {
       let date = new Date(this.currentDeltaSeries[i].name);
       if(date.getDay() == 0) {
@@ -145,11 +149,8 @@ export class AppComponent implements OnInit, AfterViewInit{
   logCaption: string = "Cases (logarithmic) over time";
   reproductionCaption: string = "Reproduction Number over time";
   
-  xTimeScaleMin: Date = new Date(Date.now() - 42 * 1000 * 60 * 60 * 24);
-  xTimeScaleMax: Date = new Date(Date.now() - 1 * 1000 * 60 * 60 * 24);
-
   colorScheme = {
-    domain: [ '#FF5333', '#5AA454',  '#CFC0BB', '#7aa3e5', '#a8385d', '#aae3f5']
+    domain: [ '#FF5333', '#FFA433', '#5AA454',  '#CFC0BB', '#a8385d', '#aae3f5']
   };
 
   constructor(private dataService: DataService, public dialog: MatDialog) {
@@ -244,10 +245,17 @@ export class AppComponent implements OnInit, AfterViewInit{
     for (let entry of countryHistory) {
       entry.delta = 0;
       entry.infectionRate = 0;
+      if(i > this.infectiousPeriod) {
+        let rec2 = 0;
+        for(let k = 0; k <= i-this.infectiousPeriod; k++) {
+          rec2 += countryHistory[k].delta;
+        }
+        if(rec2 > entry.recovered + entry.deaths) entry.assumedRecovered = rec2 - entry.recovered - entry.deaths;
+      }
       if(i > 0 && entry.active > 1000)
       {
         entry.delta = entry.cases - countryHistory[i-1].cases;
-        let j = Math.min(5,i);
+        let j = Math.min(this.daysForAverage,i);
         for(let k = i-j; k < i; k++)
         {
           if(countryHistory[k].active > 0) {
@@ -284,6 +292,10 @@ export class AppComponent implements OnInit, AfterViewInit{
     recoveredCases.name = "Recovered";
     recoveredCases.series = new Array<DataPoint>();
 
+    let assumedRecoveredCases = new DataSeries();
+    assumedRecoveredCases.name = "Assumed recovered";
+    assumedRecoveredCases.series = new Array<DataPoint>();
+
     let reproductionNumbers = new DataSeries();
     reproductionNumbers.name = "Reproduction number";
     reproductionNumbers.series = new Array<DataPoint>();
@@ -292,10 +304,11 @@ export class AppComponent implements OnInit, AfterViewInit{
     logarithmicValues.name = "Cases";
     logarithmicValues.series = new Array<DataPoint>();
 
-    let deltaCases = new Array<DataPoint>();
+    let deltaSeries = new Array<DataSeries>();
 
-    let i: number = 0;
-    for (let entry of this.currentHistory) {
+    for (let i = 0; i < this.currentHistory.length; i++) {
+      let entry = this.currentHistory[i];
+      assumedRecoveredCases.series.push(AppComponent.CreateDataPoint(entry.updated, entry.assumedRecovered));
       recoveredCases.series.push(AppComponent.CreateDataPoint(entry.updated, entry.recovered));
       deathCases.series.push(AppComponent.CreateDataPoint(entry.updated, entry.deaths));
       activeCases.series.push(AppComponent.CreateDataPoint(entry.updated, entry.active));
@@ -312,15 +325,37 @@ export class AppComponent implements OnInit, AfterViewInit{
 
       if(i > 0 && entry.updated >= this.xTimeScaleMin)
       {
+        let prev = this.currentHistory[i-1];
+        let newSeries = new DataSeries();
+        newSeries.name = entry.updated.toString();
+        newSeries.series = new Array<DataPoint>();
+
         let newCase = new DataPoint();
-        newCase.name = Number(entry.updated);
+        newCase.name = "New Cases";
         newCase.value = entry.delta;
-        deltaCases.push(newCase);
+        newSeries.series.push(newCase);
+
+        newCase = new DataPoint();
+        newCase.name = "New assumed recovered";
+        newCase.value = - (entry.assumedRecovered - prev.assumedRecovered);
+        newSeries.series.push(newCase);
+
+        newCase = new DataPoint();
+        newCase.name = "New confirmed recovered";
+        newCase.value = - (entry.recovered - prev.recovered);
+        newSeries.series.push(newCase);
+
+        newCase = new DataPoint();
+        newCase.name = "New Deaths";
+        newCase.value = - (entry.deaths - prev.deaths);
+        newSeries.series.push(newCase);
+
+        deltaSeries.push(newSeries);
       }
-      i++;
     }
     this.currentCasesSeries = new Array<DataSeries>();
     this.currentCasesSeries.push(activeCases);
+    this.currentCasesSeries.push(assumedRecoveredCases);
     this.currentCasesSeries.push(recoveredCases);
     this.currentCasesSeries.push(deathCases);
     
@@ -330,7 +365,7 @@ export class AppComponent implements OnInit, AfterViewInit{
     this.currentLogSeries = new Array<DataSeries>();
     this.currentLogSeries.push(logarithmicValues)
 
-    this.currentDeltaSeries = deltaCases;
+    this.currentDeltaSeries = deltaSeries;
     this.setDeltaTimeTicks();
   }
 

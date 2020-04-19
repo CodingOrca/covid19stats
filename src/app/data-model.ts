@@ -5,8 +5,10 @@ export class CaseData {
     cases: number;
     deaths: number;
     recovered: number;
+    assumedRecovered: number = 0;
+
     get active(): number {
-      return this.cases - this.recovered - this.deaths;
+      return this.cases - this.recovered - this.assumedRecovered - this.deaths;
     }
   
     delta: number;
@@ -139,11 +141,11 @@ export enum Tendency {
 }
 
 export class DataSeries {
-  name: string;
+  name: any;
   series: Array<DataPoint>;
 }
 
 export class DataPoint {
-  name: Date | number;
+  name: any;
   value: number;
 }
