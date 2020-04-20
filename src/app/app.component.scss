@@ -1,9 +1,22 @@
 @import "variables.scss";
 
 .wrap-item {
-  flex: 1 1 auto;
+  text-align: left;
   margin-top: 5px;
-  min-width: 145px;
+}
+
+.mat-grid-tile .mat-figure {
+  justify-content: flex-start !important ;
+  align-items: flex-start !important;
+}
+
+.vw-huge {
+  font-size: larger;
+  font-weight: bold;
+}
+
+.vw-tiny {
+  font-size: smaller;
 }
 
 table.tr {
@@ -26,8 +39,7 @@ table.tr {
 
 .chart {
   width: auto;
-  height: 35vh;
-  margin-bottom: 10px;
+  height: 30vh;
 }
 
 .sticky-top {
@@ -93,18 +105,6 @@ mat-cell:last-child, mat-footer-cell:last-child, mat-header-cell:last-child {
   border-top: 1px solid #e0e0e0;
 }
 
-.recoveredColor {
-  color: #5AA454
-}
-
-.activeColor {
-  color: #E4C454;
-}
-
-.deathsColor {
-  color: #E44D25
-}
-
 table.full-width {
   width: 100%;
 }
@@ -155,12 +155,36 @@ table.full-width {
 
 .small {
   font-size: smaller;
-  line-height: 10px;
   text-align: left;
+}
+
+.large {
+  font-size: x-large;
+  font-weight: bold;
 }
 
 .warn {
   color: $warn;
+}
+
+.active-color {
+  color: #ff3333;
+}
+
+.infectious-color {
+  color: #ff3333;
+}
+
+.not-infectious-color {
+  color: #ff6666;
+}
+
+.recovered-color {
+  color: #33aa33;
+}
+
+.deaths-color {
+  color: #3333ff;
 }
 
 .green {

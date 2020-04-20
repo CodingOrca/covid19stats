@@ -5,10 +5,10 @@ export class CaseData {
     cases: number;
     deaths: number;
     recovered: number;
-    assumedRecovered: number = 0;
+    infectious: number = 0;
 
     get active(): number {
-      return this.cases - this.recovered - this.assumedRecovered - this.deaths;
+      return this.cases - this.recovered - this.deaths;
     }
   
     delta: number;
@@ -24,6 +24,7 @@ export class CaseData {
       this.delta = c.delta;
       this.reproductionNumber = c.reproductionNumber;
       this.infectionRate = c.infectionRate;
+      this.infectious = c.infectious;
     }
   }
   

@@ -43,7 +43,8 @@ export class InfoDialog implements OnInit {
     infectionPeriodMin = 7;
     infectionPeriodMax = 30;
     infectionPeriodStep = 1;
-    infectionPeriod: number = 14;
+    infectionPeriod: number = 10;
+    activePeriod: number = 14;
 
     private maxActive: number = 1000000;
     get desiredMaxActive() {
@@ -70,6 +71,7 @@ export class InfoDialog implements OnInit {
         this.currentCountry = data.country;
         this.currentHistory = data.history;
         this._perMillSummary = JSON.parse(localStorage.getItem("perMillSummary"));
+        this.reproductionNumber = this.currentCountry.reproductionNumber;
         this.createMathModelSeries();
         this.resetSimulationHistory();
     }
@@ -83,13 +85,19 @@ export class InfoDialog implements OnInit {
 
     createMathModelSeries() {
         this.mathModelSeries = this.resetSimulationSeries();
-        let aSeries = this.mathModelSeries.find(s => s.name=="active");
-        let rSeries = this.mathModelSeries.find(s => s.name=="recovered");
+        let aSeries = new DataSeries();
+        aSeries.name = "simulated active";
+        aSeries.series = new Array<DataPoint>();
+        this.mathModelSeries.push(aSeries);
+        let rSeries = new DataSeries();
+        rSeries.name = "simulated recovered";
+        rSeries.series = new Array<DataPoint>();
+        this.mathModelSeries.push(rSeries);
         // let sSeries = this.mathModelSeries.find(s => s.name=="susceptible");
 
-        let r = this.reproductionNumber / this.infectionPeriod; //Math.pow(this.reproductionNumber + 1, 1 / this.healingTime) - 1;
+        let r = this.reproductionNumber / this.infectionPeriod; 
+        //Math.pow(this.reproductionNumber + 1, 1 / this.healingTime) - 1;
         let population = this.currentCountry.population;
-        let t = this.infectionPeriod;
 
         let startIndex = this.simulationHistory.length;
         let startDate = this.simulationHistory[0].updated;
@@ -97,12 +105,16 @@ export class InfoDialog implements OnInit {
             let h = new CaseData();
             h.updated = new Date(Number(startDate) + i * 1000 * 60 * 60 * 24)
             h.deaths = 0;
-            h.delta = r * this.simulationHistory[i-1].active * (population - this.simulationHistory[i-1].active - this.simulationHistory[i-1].recovered) / population;
+            h.delta = r * this.simulationHistory[i-1].infectious * (population - this.simulationHistory[i-1].active - this.simulationHistory[i-1].recovered) / population;
             if(h.delta < 0) h.delta = 0;
             h.cases = this.simulationHistory[i-1].cases + h.delta;
             h.recovered = this.simulationHistory[i-1].recovered;
-            if(i >= t) {
-                h.recovered += this.simulationHistory[i-t].delta;
+            h.infectious = this.simulationHistory[i-1].infectious + h.delta;
+            if(i >= this.activePeriod) {
+                h.recovered += this.simulationHistory[i-this.activePeriod].delta;
+            }
+            if(i >= this.infectionPeriod) {
+                h.infectious -= this.simulationHistory[i-this.infectionPeriod].delta;
             }
             this.simulationHistory.push(h);
             this.addPointToSeries(h.updated, h.active, aSeries);

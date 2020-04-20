@@ -28,12 +28,13 @@ export class AppComponent implements OnInit, AfterViewInit{
     localStorage.setItem("perMillSummary", value.toString());
   }
 
-  infectiousPeriod: number = 14;
+  infectiousPeriod: number = 10;
+  maximumInfectionPeriod: number = 28;
   daysForAverage: number = 5;
-  xTimeScaleMin: Date = new Date(Date.now() - 75 * 1000 * 60 * 60 * 24);
+  xTimeScaleMin: Date = new Date(Date.now() - 42 * 1000 * 60 * 60 * 24);
   xTimeScaleMax: Date = new Date(Date.now() - 1 * 1000 * 60 * 60 * 24);
   
-  title = 'COVID-19';
+  title = 'COVID-19 statistic data and forecast';
   currentCountry: SummaryViewData;
   today: Date = new Date();
 
@@ -51,7 +52,12 @@ export class AppComponent implements OnInit, AfterViewInit{
   yAxisTickFormatting(value: number) {
     let suffix = "";
     let v = value;
-    if(v >= 1000)
+    if(Math.abs(v) >= 1000000)
+    {
+      suffix = "M";
+      v = value / 1000000;
+    }
+    else if(Math.abs(v) >= 1000)
     {
       suffix = "k";
       v = value / 1000;
@@ -150,7 +156,11 @@ export class AppComponent implements OnInit, AfterViewInit{
   reproductionCaption: string = "Reproduction Number over time";
   
   colorScheme = {
-    domain: [ '#FF5333', '#FFA433', '#5AA454',  '#CFC0BB', '#a8385d', '#aae3f5']
+    domain: [ '#ff6666', '#ff7777', '#66aa66',  '#6666ff', '#a8385d', '#aae3f5']
+  };
+
+  deltaColorScheme = {
+    domain: [ '#ff6666', '#66aa66',  '#6666ff', '#a8385d', '#aae3f5']
   };
 
   constructor(private dataService: DataService, public dialog: MatDialog) {
@@ -192,7 +202,7 @@ export class AppComponent implements OnInit, AfterViewInit{
       {
         countryDetails = await this.dataService.getYesterdaysWorldData();
       }
-      this.calculateDeltaAndCo(countryHistory);
+      this.calculateDeltaAndCo(countryDetails, countryHistory);
       let s = this.CreateSummaryViewData(countryDetails, countryHistory);
       if(mortalityRates.has(cn)) {
         s.mortalityRate = mortalityRates.get(cn);        
@@ -240,30 +250,25 @@ export class AppComponent implements OnInit, AfterViewInit{
     return s;
   }
 
-  calculateDeltaAndCo(countryHistory: CaseData[]) {
+  calculateDeltaAndCo(countryDetails: YesterdayData, countryHistory: CaseData[]) {
     let i: number = 0;
     for (let entry of countryHistory) {
       entry.delta = 0;
       entry.infectionRate = 0;
-      if(i > this.infectiousPeriod) {
-        let rec2 = 0;
-        for(let k = 0; k <= i-this.infectiousPeriod; k++) {
-          rec2 += countryHistory[k].delta;
-        }
-        if(rec2 > entry.recovered + entry.deaths) entry.assumedRecovered = rec2 - entry.recovered - entry.deaths;
-      }
-      if(i > 0 && entry.active > 1000)
+      entry.infectious = 0;
+      if(i > 0)
       {
         entry.delta = entry.cases - countryHistory[i-1].cases;
+        entry.infectious += entry.delta + countryHistory[i-1].infectious;
+        if(i > this.infectiousPeriod) {
+          entry.infectious -= countryHistory[i-this.infectiousPeriod].delta;
+        }
         let j = Math.min(this.daysForAverage,i);
         for(let k = i-j; k < i; k++)
         {
-          if(countryHistory[k].active > 0) {
-            // average of the last 'j' daily growth factors;
-            // daily growth factor is defined as 
-            // the number of new infections today (delta) caused by one hundred yesterdays infected (active)
+          if(countryHistory[k].infectious > 0) {
             let gDelta = countryHistory[k+1].cases - countryHistory[k].cases;
-            entry.infectionRate += 100 *  gDelta / countryHistory[k].active / j;
+            entry.infectionRate += 100 *  gDelta / countryHistory[k].infectious / j;
           }
         }
       }
@@ -281,8 +286,12 @@ export class AppComponent implements OnInit, AfterViewInit{
     this.currentHistory = this.allHistoricalData.get(countryName);
 
     let activeCases = new DataSeries();
-    activeCases.name = "Active";
+    activeCases.name = "Active, assumed non-infectious";
     activeCases.series = new Array<DataPoint>();
+
+    let contagiousCases = new DataSeries();
+    contagiousCases.name = "Active, assumed infectious";
+    contagiousCases.series = new Array<DataPoint>();
 
     let deathCases = new DataSeries();
     deathCases.name = "Deaths";
@@ -291,10 +300,6 @@ export class AppComponent implements OnInit, AfterViewInit{
     let recoveredCases = new DataSeries();
     recoveredCases.name = "Recovered";
     recoveredCases.series = new Array<DataPoint>();
-
-    let assumedRecoveredCases = new DataSeries();
-    assumedRecoveredCases.name = "Assumed recovered";
-    assumedRecoveredCases.series = new Array<DataPoint>();
 
     let reproductionNumbers = new DataSeries();
     reproductionNumbers.name = "Reproduction number";
@@ -308,10 +313,10 @@ export class AppComponent implements OnInit, AfterViewInit{
 
     for (let i = 0; i < this.currentHistory.length; i++) {
       let entry = this.currentHistory[i];
-      assumedRecoveredCases.series.push(AppComponent.CreateDataPoint(entry.updated, entry.assumedRecovered));
       recoveredCases.series.push(AppComponent.CreateDataPoint(entry.updated, entry.recovered));
       deathCases.series.push(AppComponent.CreateDataPoint(entry.updated, entry.deaths));
-      activeCases.series.push(AppComponent.CreateDataPoint(entry.updated, entry.active));
+      activeCases.series.push(AppComponent.CreateDataPoint(entry.updated, entry.active - entry.infectious));
+      contagiousCases.series.push(AppComponent.CreateDataPoint(entry.updated, entry.infectious));
 
       reproductionNumbers.series.push(AppComponent.CreateDataPoint(entry.updated, entry.reproductionNumber));
 
@@ -336,12 +341,7 @@ export class AppComponent implements OnInit, AfterViewInit{
         newSeries.series.push(newCase);
 
         newCase = new DataPoint();
-        newCase.name = "New assumed recovered";
-        newCase.value = - (entry.assumedRecovered - prev.assumedRecovered);
-        newSeries.series.push(newCase);
-
-        newCase = new DataPoint();
-        newCase.name = "New confirmed recovered";
+        newCase.name = "New recovered";
         newCase.value = - (entry.recovered - prev.recovered);
         newSeries.series.push(newCase);
 
@@ -354,8 +354,8 @@ export class AppComponent implements OnInit, AfterViewInit{
       }
     }
     this.currentCasesSeries = new Array<DataSeries>();
+    this.currentCasesSeries.push(contagiousCases);
     this.currentCasesSeries.push(activeCases);
-    this.currentCasesSeries.push(assumedRecoveredCases);
     this.currentCasesSeries.push(recoveredCases);
     this.currentCasesSeries.push(deathCases);
     

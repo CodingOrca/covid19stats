@@ -10,7 +10,7 @@
     but the data collection is not complete and also not reliable.<br> -->
     <p>
     Yesterday, {{currentCountry.delta | number}} new cases where reported.
-    It is expected that during the time they are contagious, each of them will infect 
+    It is expected that during the time they are infectious, each of them will infect 
     {{currentCountry.reproductionNumber | number:"1.2-2"}} new persons on average, so that 
     that the number of currently infected person of {{currentCountry.active}} will 
     <span *ngIf="currentCountry.reproductionNumber > 1.1">increase</span>
@@ -31,8 +31,8 @@
     {{currentCountry.cases | number}} results where positive
      ({{100*currentCountry.cases/currentCountry.tests | number:"1.1-1"}}% of the tests). Their current state is:
     <ul>
-        <li>{{currentCountry.recovered | number}} recovered and are now immune and not contagious anymore.</li>
-        <li> {{currentCountry.active | number}} are still active (meaning they are still infected and contagious),
+        <li>{{currentCountry.recovered | number}} recovered and are now immune and not infectious anymore.</li>
+        <li> {{currentCountry.active | number}} are still active (meaning they are still infected and infectious),
             {{currentCountry.critical | number}} of them in a critical situation<span class="small"><sup>1</sup></span></li>
         <li>{{currentCountry.deaths | number}} died<span class="small"><sup>2</sup></span></li>
     </ul>
@@ -54,9 +54,9 @@
     was tested, {{currentCountry.casesPerMille| number:"1.2-2"}}&permil; positive 
     ({{100*currentCountry.cases/currentCountry.tests | number:"1.1-1"}}% of the tests). Their current state is:
     <ul>
-        <li>{{currentCountry.recoveredPerMille | number:"1.2-2"}}&permil; recovered and are not contagious anymore.</li>
+        <li>{{currentCountry.recoveredPerMille | number:"1.2-2"}}&permil; recovered and are not infectious anymore.</li>
         <li>{{currentCountry.activePerMille | number:"1.2-2"}}&permil; are still active (meaning they are still 
-            infected and contagious),
+            infected, some of them also infectious),
         {{currentCountry.criticalPerMille | number:"1.2-2"}}&permil; are in a critical situation<span class="small"><sup>1</sup></span></li>
         <li>{{currentCountry.deathsPerMille | number:"1.2-2"}}&permil; died<span class="small"><sup>2</sup></span></li>
     </ul>
@@ -79,16 +79,13 @@
         <dt>&Delta; - new cases reported for that day</dt>
         <dt>&Sigma; - total cases reported until and including on that day</dt>
         <dt>R - cases known as recovered on that day</dt>
-        <dt>A - cases known to be on that day</dt>
+        <dt>A - cases known to be active on that day</dt>
         <dt>C - cases known as critical on that day (subset of A)</dt>
         <dt>&Theta; - total deaths reported until and including that day</dt>
         <dt>R<sub>0</sub> - reproduction number, reverse calculated from the data of the last 5 days.
         This is the expected average number of persons which will be infected by one infected person
         </dt>
     </dl>
-    <b>Note:</b> We calculate an "assumed recovered" indicator, based on the average infection period, 
-    and show it in the graphics with another color. When we calculate the reproduction rates and number, we 
-    also consider these calculated cases as recovered.
     <h2>Math</h2>
     <p>
     We are using a very simple but illustrative model to simulate what could happen in the future, based on the logistic equation.
@@ -107,12 +104,12 @@
         r<sub>0</sub>= &rho; &times; &phi;
     </p>
     <p>
-        If on day n there are A<sub>n</sub> (A from Active) contagious persons, and assuming all of them meet only susceptible persons (meaning: 
+        If on day n there are I<sub>n</sub> infectious persons, and assuming all of them meet only susceptible persons (meaning: 
         persons which can be infected - i.e. they are not yet infected, nor immune) - then during one day, the 
         new number of infected persons is: 
     </p>
     <p style="text-align: center;">
-        &Delta;<sub>n+1</sub> = r<sub>0</sub> &times; A<sub>n</sub>
+        &Delta;<sub>n+1</sub> = r<sub>0</sub> &times; I<sub>n</sub>
     </p>
     <p>
         <b>Notes:</b> <br>
@@ -125,8 +122,12 @@
         4. It is NOT influenced by the status of the other persons - i.e. if they are already immune or not. 
     </p>
     <p>
-        <b>Definition:</b> The <b>Infection period &tau;</b> is the duration an infected person remains
-        contagious and can infect others. 
+        <b>Definition:</b> The <b>Infectious period &tau;</b> is the average duration an infected person remains
+        infectious and can infect others (before being isolated). We use the value of 9 days i our calculation.
+    </p>
+    <p>
+        <b>Definition:</b> The <b>Active period &sigma;</b> is the total duration an infected person remains
+        infected. We use the value of 14 days in our calculations.
     </p>
     <p>
         <b>Definition:</b> The <b>reproduction number R<sub>0</sub></b> is the number of persons directly infected
@@ -138,34 +139,33 @@
     <p> 
         Both r<sub>0</sub> and R<sub>0</sub> are defined under ideal conditions: it is assumed that 
         all other persons are susceptible. This is the case in the beginning of an epidemy, when the number of
-        active and immune persons is negligible. 
+        infectious and immune persons is negligible. 
         But after some time, our imaginary infected person will not only encounter susceptible persons, but also 
         active or immune persons.
         If the population of the country is P, the number of current infected persons is A (active), 
-        R the recovered persons,
-        and D the persons who died, then the number of susceptible 
-        persons is S = P - A - R - D, and the probability for our imaginary infected person to encounter a 
+        R the recovered persons, then number of susceptible 
+        persons is S = P - A - R, and the probability for our imaginary infected person to encounter a 
         susceptible person is s = S / P. The probability s will decrease from 1 towards 0 during an epidemy (we will see later that 
         often it will not reach 0).<br>
+        If we consider the number of persons who die, D, the population will decrease over time, and on day n+1 we can write:
         The newly infected persons on day n can be written as:
     </p>
     <p class="center">
-        &Delta;<sub>n+1</sub> = r<sub>0</sub> * A<sub>n</sub> * s<sub>n</sub><br>
-        s<sub>n</sub> = (P - A<sub>n</sub> - R<sub>n</sub> -D<sub>n</sub>) / P
+        &Delta;<sub>n</sub> = r<sub>0</sub> &times; I<sub>n-1</sub> &times; s<sub>n-1</sub><br>
+        s<sub>n</sub> = (P<sub>n</sub> - A<sub>n</sub> - R<sub>n</sub>) / P<sub>n</sub><br>
+        P<sub>n</sub> = P<sub>n-1</sub> - D<sub>n</sub>
     </p>
     <p>
         The number of recovered persons on day n can be written as 
     </p>
     <div class="center">
-        R<sub>n</sub> = R<sub>n-1</sub> + &Delta;<sub>n-&tau;</sub> &nbsp;&nbsp;&nbsp;for n &ge; &tau;<br>
-        and <br>
-        R<sub>n</sub> = R<sub>n-1</sub> &nbsp;&nbsp;&nbsp;for 0 &lt; n &lt; &tau;
+        R<sub>n</sub> = R<sub>n-1</sub> + &Delta;<sub>n-&tau;</sub>
     </div>
-    And the number of infected persons on day n is:
+    And the number of infectious and infected persons on day n is:
     <p class="center">
-        A<sub>n</sub> = A<sub>n-1</sub> + &Delta;<sub>n</sub> - &Delta;<sub>n-&tau;</sub> &nbsp;&nbsp;&nbsp;for n &ge; &tau;<br>
-        and<br>
-        A<sub>n</sub> = A<sub>n-1</sub> + &Delta;<sub>n</sub> &nbsp;&nbsp;&nbsp;for 0 &lt; n &lt; &tau;
+        I<sub>n</sub> = I<sub>n-1</sub> + &Delta;<sub>n</sub>- &Delta;<sub>n-&tau;</sub><br>
+        <br>
+        A<sub>n</sub> = A<sub>n-1</sub> + &Delta;<sub>n</sub> - &Delta;<sub>n-&epsilon;</sub><br>
     </p>
     For now we assume there are no deaths:
     <p class="center">
