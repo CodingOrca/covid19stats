@@ -6,6 +6,7 @@ import { MatSort, SortDirection} from '@angular/material/sort';
 import { ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { InfoDialog } from './info-dialog';
+import { SettingsService } from './settings/settings.service';
 
 @Component({
   selector: 'app-root',
@@ -24,11 +25,10 @@ export class AppComponent implements OnInit, AfterViewInit{
   }
   set perMillSummary(value: boolean)
   {
-    this._perMillSummary = value;
-    localStorage.setItem("perMillSummary", value.toString());
+    this.settingsService.setPerMilSummary(value);
   }
 
-  infectiousPeriod: number = 10;
+  infectiousPeriod: number = 5;
   maximumInfectionPeriod: number = 28;
   daysForAverage: number = 5;
   xTimeScaleMin: Date = new Date(Date.now() - 42 * 1000 * 60 * 60 * 24);
@@ -118,7 +118,7 @@ export class AppComponent implements OnInit, AfterViewInit{
   yLogLabel: string = "log(new cases)";
   yLogTicks: number[] = [Math.log(1000), Math.log(10000), Math.log(100000), Math.log(1000000)];
   linTicks: number[] = [10, 100, 1000, 10000, 100000];
-  reproductionTicks: number[] = [0,1,2,3,4,5,6,7,8,9];
+  reproductionTicks: number[] = [0,1,2,3,4];
   timeline: boolean = false;
   yLogScaleMin: number = Math.log(1000);
   yLogScaleMax: number = Math.log(10000000);
@@ -163,12 +163,12 @@ export class AppComponent implements OnInit, AfterViewInit{
     domain: [ '#ff6666', '#66aa66',  '#6666ff', '#a8385d', '#aae3f5']
   };
 
-  constructor(private dataService: DataService, public dialog: MatDialog) {
+  constructor(private settingsService: SettingsService, private dataService: DataService, public dialog: MatDialog) {
   }
 
   async ngOnInit(): Promise<void> {
 
-    this._perMillSummary = JSON.parse(localStorage.getItem("perMillSummary"));
+    this.settingsService.perMilSummary.subscribe(on => this._perMillSummary = on);
 
     // get ALL historical data, of all provinces:
     this.allHistoricalData = await this.dataService.getAllHistoricalData();
@@ -215,10 +215,15 @@ export class AppComponent implements OnInit, AfterViewInit{
     this.tableData.sort = this.matSort;
 
     this.selectedIndexChange(0);
-    let s = localStorage.getItem("selectedCountry");
-    let c = this.tableData.data.find(e => e.country == s);
-    if(c == null) c = this.tableData.data[0];
-    this.selectCountry(c);
+    this.settingsService.selectedCountry.subscribe( country =>
+      {
+        let c = this.tableData.data.find(e => e.country == country);
+        if(c == null) c = this.tableData.data[0];
+        this.currentCountry = c;
+        this.tableData.filter = "";
+        this.tableData._updateChangeSubscription();
+        this.RenderCountryHistory(country);    
+      })
   }
 
   ngAfterViewInit() {
@@ -425,11 +430,7 @@ export class AppComponent implements OnInit, AfterViewInit{
   }
 
   selectCountry(country: SummaryViewData) {
-    localStorage.setItem("selectedCountry", country.country);
-    this.currentCountry = country;
-    this.tableData.filter = "";
-    this.tableData._updateChangeSubscription();
-    this.RenderCountryHistory(country.country);
+    this.settingsService.setSelectedCountry(country.country);
   }
 
   openGitHub()
@@ -443,7 +444,6 @@ export class AppComponent implements OnInit, AfterViewInit{
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
-      this._perMillSummary = JSON.parse(localStorage.getItem("perMillSummary"));
     });
   }
 

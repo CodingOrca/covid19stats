@@ -1,6 +1,7 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import {SummaryViewData, DataSeries, DataPoint, CaseData} from "./data-model";
+import { SettingsService } from './settings/settings.service';
 
 export interface DialogData {
     country: SummaryViewData;
@@ -60,17 +61,17 @@ export class InfoDialog implements OnInit {
     }
     set perMillSummary(value: boolean)
     {
-        this._perMillSummary = value;
-        localStorage.setItem("perMillSummary", value.toString());
+        this.settingsService.setPerMilSummary(value);
     }
     
     constructor(
+        private settingsService: SettingsService,
         public dialogRef: MatDialogRef<InfoDialog>,
         @Inject(MAT_DIALOG_DATA) public data: DialogData) 
     {
         this.currentCountry = data.country;
         this.currentHistory = data.history;
-        this._perMillSummary = JSON.parse(localStorage.getItem("perMillSummary"));
+        this.settingsService.perMilSummary.subscribe(on => this._perMillSummary = on);
         this.reproductionNumber = this.currentCountry.reproductionNumber;
         this.createMathModelSeries();
         this.resetSimulationHistory();
