@@ -3,7 +3,8 @@
   </app-toolbar>
   <div class="content" fxLayout="column">
     <div class="sticky-top">
-      <app-graphics [currentCountry]="currentCountry" [currentHistory]="currentHistory">
+      <app-graphics [currentCountry]="currentCountry" [currentHistory]="currentHistory"
+      (selectedTabIndexChange)="selectedTabIndex=$event">
       </app-graphics>
     </div>
     

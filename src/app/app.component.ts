@@ -208,7 +208,7 @@ export class AppComponent implements OnInit, AfterViewInit{
     return this.settingsService.tabIndex;
   }
 
-  set selectedTabIndex(index: number) {
+  @Input() set selectedTabIndex(index: number) {
     this.changeTabToIndex(index);
     this.settingsService.tabIndex = index;
   }

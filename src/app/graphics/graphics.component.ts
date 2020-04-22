@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { DataSeries, SummaryViewData, CaseData, DataPoint } from '../data-model';
 import { SettingsService } from '../settings/settings.service';
 
@@ -249,12 +249,15 @@ export class GraphicsComponent implements OnInit {
     console.log(event);
   }
 
+  @Output() selectedTabIndexChange = new EventEmitter();
+
   get selectedTabIndex() {
     return this.settingsService.tabIndex;
   }
 
   set selectedTabIndex(index: number) {
     this.settingsService.tabIndex = index;
+    this.selectedTabIndexChange.emit(this.selectedTabIndex);
   }
 
 }
