@@ -53,13 +53,15 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 import { InfoDialog } from './info-dialog';
 import { ToolbarComponent } from './toolbar/toolbar.component';
+import { GraphicsComponent } from './graphics/graphics.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     InfoDialog,
-    ToolbarComponent
+    ToolbarComponent,
+    GraphicsComponent
   ],
   imports: [
     BrowserModule,

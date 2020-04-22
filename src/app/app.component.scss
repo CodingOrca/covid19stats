@@ -17,25 +17,6 @@
   overflow: auto;
 }
 
-.wrap-item {
-  text-align: left;
-  margin-top: 5px;
-}
-
-.mat-grid-tile .mat-figure {
-  justify-content: flex-start !important ;
-  align-items: flex-start !important;
-}
-
-.vw-huge {
-  font-size: larger;
-  font-weight: bold;
-}
-
-.vw-tiny {
-  font-size: smaller;
-}
-
 table.tr {
   height: 12px;
 }
@@ -52,11 +33,6 @@ table.tr {
   width: auto;
   height: auto;
   margin-bottom: 10px;
-}
-
-.chart {
-  width: auto;
-  height: 30vh;
 }
 
 .sticky-top {

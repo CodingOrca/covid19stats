@@ -1,0 +1,184 @@
+<mat-tab-group 
+    class="mat-elevation-z8" 
+    color="accent"
+    [(selectedIndex)]="selectedTabIndex">
+    <mat-tab>
+    <ng-template mat-tab-label>#</ng-template>
+    <ng-template matTabContent>
+        <div class="chart" style="margin-bottom: 10px;">
+        <mat-grid-list cols="3" rowHeight="48px" style="margin: 0.5em;" >
+            <mat-grid-tile class="summary-tile">
+            <div class="wrap-item">
+                <div class="vw-tiny">&Sigma; - total cases:</div>
+                <div class="vw-huge">
+                {{currentCountry.cases | number}}
+                </div>
+            </div>
+            </mat-grid-tile>
+            <mat-grid-tile>
+            <div class="wrap-item">
+                <div class="vw-tiny">R - recovered:</div>
+                <div class="vw-huge">
+                {{currentCountry.recovered | number}}
+                </div>
+            </div>
+            </mat-grid-tile>
+            <mat-grid-tile>
+            <div class="wrap-item">
+                <div class="vw-tiny">&Theta; - deaths:</div>
+                <div class="vw-huge">
+                {{currentCountry.deaths | number}}
+                </div>
+            </div>
+            </mat-grid-tile>
+            <mat-grid-tile>
+            <div class="wrap-item">
+                <div class="vw-tiny">&Delta; - new cases:</div>
+                <div class="vw-huge">
+                {{currentCountry.delta | number}}
+                <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta > 0" class="warn">arrow_drop_up</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta < 0" class="green">arrow_drop_down</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta == 0">arrow_right</mat-icon>
+                </div>
+            </div>  
+            </mat-grid-tile>
+            <mat-grid-tile>
+            <div class="wrap-item">
+                <div class="vw-tiny">A - active cases:</div>
+                <div class="vw-huge">
+                {{currentCountry.active | number}}
+                <mat-icon inline=true *ngIf="currentCountry.activeDelta > 0" class="warn">arrow_drop_up</mat-icon>
+                <mat-icon inline=true *ngIf="currentCountry.activeDelta < 0" class="green">arrow_drop_down</mat-icon>
+                <mat-icon inline=true *ngIf="currentCountry.activeDelta == 0">arrow_right</mat-icon>
+                </div>
+            </div>
+            </mat-grid-tile>
+            <mat-grid-tile >
+            <div class="wrap-item">
+                <div class="vw-tiny with-subscript">R<sub>0</sub> - repr. nr.</div>
+                <div class="vw-huge">
+                {{currentCountry.reproductionNumber | number:'1.1-1' }}
+                <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta > 0" class="warn">arrow_drop_up</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta < 0" class="green">arrow_drop_down</mat-icon>
+                <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta == 0">arrow_right</mat-icon>
+                </div>
+            </div>
+            </mat-grid-tile>
+        </mat-grid-list>
+        </div>
+    </ng-template>
+    </mat-tab>
+    <mat-tab>
+    <ng-template mat-tab-label>&Sigma;</ng-template>
+    <ng-template matTabContent>
+        <div class="chart">
+        <ngx-charts-area-chart-stacked
+            [scheme]="colorScheme"
+            [legend]="legend"
+            [legendPosition]="legendPosition"
+            [showXAxisLabel]="false"
+            [xAxis]="xAxis"
+            [yAxis]="yAxis"
+            [xAxisLabel]="'Total cases: &Sigma;=A+R+&Theta; over time'"
+            [yAxisTickFormatting]="yAxisTickFormattingFn"
+            [xAxisTickFormatting]="dateAxisTickFormattingFn"
+            [xScaleMin]="xTimeScaleMin"
+            [results]="currentCasesSeries"
+            [timeline]="timeline"
+            (select)="onSelect($event)">
+        </ngx-charts-area-chart-stacked>
+        </div>      
+        <div class="center">
+        <span class="active-color">active</span>, 
+        <span class="recovered-color">recovered</span>, 
+        <span class="deaths-color">deaths</span>:&nbsp;
+        &Sigma; = A + R + &Theta;
+        </div>
+    </ng-template> 
+    </mat-tab>
+    <mat-tab>
+    <ng-template mat-tab-label>&Delta;</ng-template>
+    <ng-template matTabContent>
+        <div class="chart">
+        <ngx-charts-bar-vertical-stacked
+            [scheme]="deltaColorScheme"
+            [legend]="legend"
+            [barPadding]=1
+            [roundDomains]=true
+            [legendPosition]="legendPosition"
+            [showXAxisLabel]=false
+            [showYAxisLabel]="showYAxisLabel"
+            [xAxis]="xAxis"
+            [yAxis]="yAxis"
+            [xAxisLabel]="'New: Cases (+) &nbsp; Recovered (-) &nbsp; Deaths (-)'"
+            [yAxisLabel]="gAxisLabel"
+            [xAxisTicks]="deltaTimeTicks"
+            [xAxisTickFormatting]="dateAxisTickFormattingFn"
+            [yAxisTickFormatting]="yAxisTickFormattingFn"
+            [results]="currentDeltaSeries"
+            (select)="onSelect($event)">
+        </ngx-charts-bar-vertical-stacked>
+        </div>
+        <div class="center">
+        <span class="active-color"> new cases (+)</span>, 
+        <span class="recovered-color">new recovered (-)</span>,
+        <span class="deaths-color">new deaths (-)</span>
+        </div>
+    </ng-template>
+    </mat-tab>
+    <mat-tab>
+    <ng-template mat-tab-label><div style="margin-bottom: -4px;">R<sub>0</sub></div></ng-template>
+    <ng-template matTabContent>
+        <div class="chart">
+        <ngx-charts-line-chart
+            [showXAxisLabel]="false"
+            [showYAxisLabel]="showYAxisLabel"
+            [xAxis]="xAxis"
+            [yAxis]="yAxis"
+            [xAxisLabel]="'Reproduction number over time'"
+            [yAxisLabel]="dAxisLabel"
+            [xScaleMin]="xTimeScaleMin"
+            [yScaleMax]="'5'"
+            [yAxisTicks]="reproductionTicks"
+            [xAxisTickFormatting]="dateAxisTickFormattingFn"
+            [results]="currentReproductionSeries"
+            [timeline]="timeline"
+            (select)="onSelect($event)">
+        </ngx-charts-line-chart>
+        </div>
+        <div class="center">
+        reproduction number
+        </div>
+    </ng-template>
+    </mat-tab>
+    <mat-tab>
+    <ng-template mat-tab-label>ln&Sigma;</ng-template>
+    <ng-template matTabContent>
+        <div class="chart">
+        <ngx-charts-line-chart
+            [legend]="legend"
+            [legendPosition]="legendPosition"
+            [showXAxisLabel]="false"
+            [showYAxisLabel]="showYAxisLabel"
+            [xAxisTickFormatting]="dateAxisTickFormattingFn"
+            [yAxisTickFormatting]="logAxisTickFormattingFn"
+            [xAxis]="xAxis"
+            [yAxis]="yAxis"
+            [yAxisTicks]="yLogTicks"
+            [xAxisLabel]="'Total cases (logarithmic): &Sigma; over time'"
+            [yAxisLabel]="yLogLabel"
+            [xScaleMin]="xTimeScaleMin"
+            [yScaleMin]="yLogScaleMin"
+            [yScaleMax]="yLogScaleMax"
+            [results]="currentLogSeries"
+            [timeline]="timeline"
+            [tooltipDisabled]=true
+            (select)="onSelect($event)">
+        </ngx-charts-line-chart>
+        </div>
+        <div class="center">
+            total cases (logarithmic)
+        </div>
+    </ng-template>
+    </mat-tab>
+</mat-tab-group>
