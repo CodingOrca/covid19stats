@@ -41,10 +41,10 @@ export class InfoDialog implements OnInit {
     reproductionNumberMax = 5;
     reproductionNumberStep = 0.1;
     reproductionNumber: number = 2.0;
-    infectionPeriodMin = 7;
+    infectionPeriodMin = 2;
     infectionPeriodMax = 30;
     infectionPeriodStep = 1;
-    infectionPeriod: number = 10;
+    infectionPeriod: number = 5;
     activePeriod: number = 14;
 
     private maxActive: number = 1000000;

@@ -17,20 +17,9 @@ import { SettingsService } from './settings/settings.service';
 
 export class AppComponent implements OnInit, AfterViewInit{
 
-  @ViewChild(MatSort, {static: true}) matSort: MatSort;
-
-  private _perMillSummary: boolean = true;
-  get perMillSummary(): boolean {
-    return this._perMillSummary;
-  }
-  set perMillSummary(value: boolean)
-  {
-    this.settingsService.setPerMilSummary(value);
-  }
-
   infectiousPeriod: number = 5;
   maximumInfectionPeriod: number = 28;
-  daysForAverage: number = 5;
+  daysForAverage: number = 7;
   xTimeScaleMin: Date = new Date(Date.now() - 42 * 1000 * 60 * 60 * 24);
   xTimeScaleMax: Date = new Date(Date.now() - 1 * 1000 * 60 * 60 * 24);
   
@@ -48,6 +37,49 @@ export class AppComponent implements OnInit, AfterViewInit{
   currentLogSeries: Array<DataSeries>;
   currentDeltaSeries : Array<DataSeries>;
 
+  // options
+  legend: boolean = false;
+  legendPosition: string = "below";
+  showLabels: boolean = true;
+  animations: boolean = true;
+  xAxis: boolean = true;
+  yAxis: boolean = true;
+  showYAxisLabel: boolean = false;
+  showXAxisLabel: boolean = true;
+  xAxisLabel: string = 'Date';
+  xLogLabel: string = "log(cases)"
+  yAxisLabel: string = 'Cases [thousands]';
+  dAxisLabel: string = "Reproduction number";
+  gAxisLabel: string = "New cases";
+  yLogLabel: string = "log(new cases)";
+  yLogTicks: number[] = [Math.log(1000), Math.log(10000), Math.log(100000), Math.log(1000000)];
+  linTicks: number[] = [10, 100, 1000, 10000, 100000];
+  reproductionTicks: number[] = [0,1,2,3,4];
+  timeline: boolean = false;
+  yLogScaleMin: number = Math.log(1000);
+  yLogScaleMax: number = Math.log(10000000);
+
+  maxCases: number = 1;
+  maxDelta: number = 10000;
+
+  totalCaption: string = "Cases over time";
+  deltaCaption: string = "New cases per day";
+  logCaption: string = "Cases (logarithmic) over time";
+  reproductionCaption: string = "Reproduction Number over time";
+  
+  @ViewChild(MatSort, {static: true}) matSort: MatSort;
+
+  private _perMillSummary: boolean = true;
+  get perMillSummary(): boolean {
+    return this._perMillSummary;
+  }
+  set perMillSummary(value: boolean)
+  {
+    this._perMillSummary = value;
+    localStorage.setItem("perMillSummary", value.toString());
+  }
+
+  
   public yAxisTickFormattingFn = this.yAxisTickFormatting.bind(this);
   yAxisTickFormatting(value: number) {
     let suffix = "";
@@ -99,31 +131,6 @@ export class AppComponent implements OnInit, AfterViewInit{
     return `${this.pad(date.getDate(), 2)}.${this.pad(date.getMonth() + 1, 2)}`;
   }
 
-  view: any[] = [600, 400];
-
-  // options
-  legend: boolean = false;
-  legendPosition: string = "below";
-  showLabels: boolean = true;
-  animations: boolean = true;
-  xAxis: boolean = true;
-  yAxis: boolean = true;
-  showYAxisLabel: boolean = false;
-  showXAxisLabel: boolean = true;
-  xAxisLabel: string = 'Date';
-  xLogLabel: string = "log(cases)"
-  yAxisLabel: string = 'Cases [thousands]';
-  dAxisLabel: string = "Reproduction number";
-  gAxisLabel: string = "New cases";
-  yLogLabel: string = "log(new cases)";
-  yLogTicks: number[] = [Math.log(1000), Math.log(10000), Math.log(100000), Math.log(1000000)];
-  linTicks: number[] = [10, 100, 1000, 10000, 100000];
-  reproductionTicks: number[] = [0,1,2,3,4];
-  timeline: boolean = false;
-  yLogScaleMin: number = Math.log(1000);
-  yLogScaleMax: number = Math.log(10000000);
-
-
   deltaTimeTicks: Array<string | Date> = [new Date(2020,0,22), new Date()];
   private setDeltaTimeTicks() {
     this.deltaTimeTicks = new Array<string | Date>();
@@ -147,14 +154,6 @@ export class AppComponent implements OnInit, AfterViewInit{
       .reduce((m,h) => h.delta > m ? h.delta : m, this.maxDelta);
   }
 
-  maxCases: number = 1;
-  maxDelta: number = 10000;
-
-  totalCaption: string = "Cases over time";
-  deltaCaption: string = "New cases per day";
-  logCaption: string = "Cases (logarithmic) over time";
-  reproductionCaption: string = "Reproduction Number over time";
-  
   colorScheme = {
     domain: [ '#ff6666', '#ff7777', '#66aa66',  '#6666ff', '#a8385d', '#aae3f5']
   };

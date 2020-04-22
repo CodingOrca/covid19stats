@@ -45,8 +45,8 @@
                   <div class="vw-tiny">&Delta; - new cases:</div>
                   <div class="vw-huge">
                     {{currentCountry.delta | number}}
-                    <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta > 0" class="warn">arrow_drop_down</mat-icon>
-                    <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta < 0" class="green">arrow_drop_up</mat-icon>
+                    <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta > 0" class="warn">arrow_drop_up</mat-icon>
+                    <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta < 0" class="green">arrow_drop_down</mat-icon>
                     <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta == 0">arrow_right</mat-icon>
                   </div>
                 </div>  

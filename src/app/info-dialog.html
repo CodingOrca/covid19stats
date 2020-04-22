@@ -123,10 +123,10 @@
     </p>
     <p>
         <b>Definition:</b> The <b>Infectious period &tau;</b> is the average duration an infected person remains
-        infectious and can infect others (before being isolated). We use the value of 9 days i our calculation.
+        infectious and can infect others (before being isolated). We use the value of 5 days in our calculation.
     </p>
     <p>
-        <b>Definition:</b> The <b>Active period &sigma;</b> is the total duration an infected person remains
+        <b>Definition:</b> The <b>Active period &sigma;</b> is the average total duration an infected person remains
         infected. We use the value of 14 days in our calculations.
     </p>
     <p>
@@ -274,7 +274,7 @@
             [yAxis]=true
             [xAxisLabel]="'days from start'"
             [yAxisLabel]="'reproduction number'"
-            [yScaleMax]="'10'"
+            [yScaleMax]="'5'"
             [yAxisTicks]="reproductionTicks"
             [results]="infectionRateSeries"
             [timeline]=false>
