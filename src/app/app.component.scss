@@ -1,5 +1,22 @@
 @import "variables.scss";
 
+.host {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: auto;
+}
+
 .wrap-item {
   text-align: left;
   margin-top: 5px;
