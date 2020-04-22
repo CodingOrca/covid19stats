@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { DataService } from 'src/app/novelcovid.service';
+import { NovelCovidService } from 'src/app/novel-covid/novel-covid.service';
 import { SummaryViewData, YesterdayData, CaseData, DataSeries, DataPoint} from './data-model';
 import { MatTableDataSource} from '@angular/material/table';
 import { MatSort, SortDirection} from '@angular/material/sort';
 import { ViewEncapsulation } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { InfoDialog } from './info-dialog';
 import { SettingsService } from './settings/settings.service';
+import { SharingService } from './sharing/sharing.service';
 
 @Component({
   selector: 'app-root',
@@ -23,7 +23,7 @@ export class AppComponent implements OnInit, AfterViewInit{
   xTimeScaleMin: Date = new Date(Date.now() - 42 * 1000 * 60 * 60 * 24);
   xTimeScaleMax: Date = new Date(Date.now() - 1 * 1000 * 60 * 60 * 24);
   
-  title = 'COVID-19 statistic data and forecast';
+  title = 'COVID-19 cases - figures and plots';
   currentCountry: SummaryViewData;
   today: Date = new Date();
 
@@ -69,16 +69,7 @@ export class AppComponent implements OnInit, AfterViewInit{
   
   @ViewChild(MatSort, {static: true}) matSort: MatSort;
 
-  private _perMillSummary: boolean = true;
-  get perMillSummary(): boolean {
-    return this._perMillSummary;
-  }
-  set perMillSummary(value: boolean)
-  {
-    this._perMillSummary = value;
-    localStorage.setItem("perMillSummary", value.toString());
-  }
-
+  private perMillSummary: boolean;
   
   public yAxisTickFormattingFn = this.yAxisTickFormatting.bind(this);
   yAxisTickFormatting(value: number) {
@@ -162,12 +153,15 @@ export class AppComponent implements OnInit, AfterViewInit{
     domain: [ '#ff6666', '#66aa66',  '#6666ff', '#a8385d', '#aae3f5']
   };
 
-  constructor(private settingsService: SettingsService, private dataService: DataService, public dialog: MatDialog) {
+  constructor(
+    private settingsService: SettingsService, 
+    private sharingService: SharingService,
+    private dataService: NovelCovidService) {
   }
 
   async ngOnInit(): Promise<void> {
 
-    this.settingsService.perMilSummary.subscribe(on => this._perMillSummary = on);
+    this.settingsService.perMilSummary.subscribe(on => this.perMillSummary = on);
 
     // get ALL historical data, of all provinces:
     this.allHistoricalData = await this.dataService.getAllHistoricalData();
@@ -213,19 +207,19 @@ export class AppComponent implements OnInit, AfterViewInit{
     this.tableData = new MatTableDataSource(results.sort((x, y) => x.cases > y.cases ? -1 : 1));
     this.tableData.sort = this.matSort;
 
-    this.selectedIndexChange(0);
-    this.settingsService.selectedCountry.subscribe( country =>
+    this.sharingService.selectedCountry.subscribe(c => 
       {
-        let c = this.tableData.data.find(e => e.country == country);
         if(c == null) c = this.tableData.data[0];
         this.currentCountry = c;
         this.tableData.filter = "";
         this.tableData._updateChangeSubscription();
-        this.RenderCountryHistory(country);    
-      })
+        this.RenderCountryHistory(c.country);    
+      });
+    this.sharingService.setSelectedCountry(this.tableData.data.find( c=> c.country == this.settingsService.country));
   }
 
   ngAfterViewInit() {
+    this.changeTabToIndex(this.settingsService.tabIndex);
     this.tableData.sort.active = "cases";
     this.tableData.sort._markInitialized();
     this.tableData._updateChangeSubscription();
@@ -429,25 +423,19 @@ export class AppComponent implements OnInit, AfterViewInit{
   }
 
   selectCountry(country: SummaryViewData) {
-    this.settingsService.setSelectedCountry(country.country);
+    this.sharingService.setSelectedCountry(country);
   }
 
-  openGitHub()
-  {
-//    window.open("https://github.com/CodingOrca/covid19stats/blob/master/README.md");
-    const dialogRef = this.dialog.open(InfoDialog, {
-      minWidth: '100vw',
-      height: "100vh",
-      data: {country: this.currentCountry, history: this.currentHistory}
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-    });
+  get selectedTabIndex() {
+    return this.settingsService.tabIndex;
   }
 
-  selectedIndexChange(index: number)
-  {
+  set selectedTabIndex(index: number) {
+    this.changeTabToIndex(index);
+    this.settingsService.tabIndex = index;
+  }
+
+  changeTabToIndex(index: number) {
     switch(index) {
       case 0:
         this.displayedColumns = ['country', 'cases', 'delta', 'deaths', 'reproductionNumber'];

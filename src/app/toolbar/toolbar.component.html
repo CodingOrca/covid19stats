@@ -1,0 +1,9 @@
+<mat-toolbar color="primary" role="heading">
+    <img class="small-icon" src={{currentCountry.flag}}/>
+    <div class="toolbar-center">
+        <div>{{currentCountry.country}}</div>
+    </div> 
+    <button mat-icon-button (click)="openGitHub()">
+        <mat-icon>info</mat-icon>
+    </button>
+</mat-toolbar>

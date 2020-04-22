@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { YesterdayData, CountryInfo, CaseData} from './data-model';
+import { YesterdayData, CountryInfo, CaseData} from '../data-model';
 @Injectable({
   providedIn: 'root'
 })
 
-export class DataService {
+export class NovelCovidService {
 
   constructor(private http: HttpClient) { 
   }

@@ -52,12 +52,14 @@ import { FormsModule } from '@angular/forms';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 import { InfoDialog } from './info-dialog';
+import { ToolbarComponent } from './toolbar/toolbar.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    InfoDialog
+    InfoDialog,
+    ToolbarComponent
   ],
   imports: [
     BrowserModule,

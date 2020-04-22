@@ -1,15 +1,28 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { stringify } from 'querystring';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SettingsService {
-  private mySelectedCountry = new BehaviorSubject<string>('');
-  selectedCountry = this.mySelectedCountry.asObservable();
-  setSelectedCountry(country: string) {
-    this.mySelectedCountry.next(country);
+
+  get country(): string {
+    return localStorage.getItem("selectedCountry");
+  } 
+  
+  set country(country: string) {
     localStorage.setItem("selectedCountry", country);
+  }
+
+  get tabIndex(): number {
+    let s = localStorage.getItem("selectedTab");
+    if(s == null) return 0;
+    return Number.parseInt(s);
+  }
+
+  set tabIndex(i: number) {
+    localStorage.setItem("selectedTab", i.toString())
   }
 
   private myPerMilSummary = new BehaviorSubject<boolean>(false);
@@ -19,9 +32,7 @@ export class SettingsService {
     localStorage.setItem("perMillSummary", on.toString());
   }
 
-
   constructor() {     
-    this.mySelectedCountry.next(localStorage.getItem("selectedCountry"));
     this.myPerMilSummary.next(JSON.parse(localStorage.getItem("perMillSummary")));
   }
 }
