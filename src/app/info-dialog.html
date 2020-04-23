@@ -39,7 +39,7 @@
     <mat-divider></mat-divider>
     <div class="small" style="margin-top: 10px;"> 
         <p><sup>1</sup> should stay below the number of ICU and CCB available in your country. 
-            See <a href="https://en.wikipedia.org/wiki/List_of_countries_by_hospital_beds">
+            See <a href="https://en.wikipedia.org/wiki/List_of_countries_by_hospital_beds" target="_blank">
                 Wikipedia article <em>List of countries by hospital beds</em></a></p>
         <p><sup>2</sup> to be compared with the estimated mortality of your country from the last last years 
         (before the Corona virus), which is 
@@ -63,7 +63,7 @@
     <mat-divider></mat-divider>
     <div class="small" style="margin-top: 10px;"> 
         <p><sup>1</sup> should stay below the number of ICU and CCB available in your country. 
-            See <a href="https://en.wikipedia.org/wiki/List_of_countries_by_hospital_beds">
+            See <a href="https://en.wikipedia.org/wiki/List_of_countries_by_hospital_beds" target="_blank">
                 Wikipedia article <em>List of countries by hospital beds</em></a></p>
         <p><sup>2</sup> to be compared with the estimated mortality of your country from the last last years 
         (before the Corona virus), which is 
@@ -73,7 +73,9 @@
 </p>
     </div>
     </div>
-    <h2>Symbols</h2>
+    <h2>Data and Symbols</h2>
+    Covid-19 case data are provided by <a href="https://systems.jhu.edu/" target="_blank">John Hopkins University</a> and retrieved with the APIs provided by 
+    <a href="https://github.com/NovelCOVID" target="_blank">NovelCOVID</a>.<br>
     For every day since the beginning of case reporting, we define the following indicators:
     <dl>
         <dt>&Delta; - new cases reported for that day</dt>
@@ -84,6 +86,10 @@
         <dt>&Theta; - total deaths reported until and including that day</dt>
         <dt>R<sub>0</sub> - reproduction number, reverse calculated from the data of the last 5 days.
         This is the expected average number of persons which will be infected by one infected person
+        </dt>
+        <dt><mat-icon inline=true>multiline_chart</mat-icon> - data provided by google: 
+        <a href="https://www.google.com/covid19/mobility/" target="_blank">
+            See how your community is moving around differently due to COVID-19</a> 
         </dt>
     </dl>
     <h2>Math</h2>
@@ -173,7 +179,7 @@
     </p>
     <p>
         Our result is a slightly more complex form of the 
-        <a href="https://en.wikipedia.org/wiki/Logistic_map">logistic map</a>. 
+        <a href="https://en.wikipedia.org/wiki/Logistic_map" target="_blank">logistic map</a>. 
         Below we plot the series for the 2 indicators: A<sub>n</sub> and R<sub>n</sub>. 
         We quickly observe that the values of R and S have an asymptotic behavior so that not the whole population
         will be infected. A - the number of simultaneously ill persons - is growing exponential in the beginning, 
@@ -238,7 +244,7 @@
     exceed the ICUs (Intensive Care Units) available in your country.
     At the same time, the cases needing hospitalization shall not exceed the number of available beds in the hospitals.<br>
     From data analysed up to now, it seems that about 4.5% of all cases needs hospitalization, and about 25% of them will need intensive care. One of the sources 
-    of information is the <a href="https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Modellierung_Deutschland.pdf?__blob=publicationFile">
+    of information is the <a href="https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Modellierung_Deutschland.pdf?__blob=publicationFile" target="_blank">
     Modellierung von Beispielszenarien der SARS-CoV-2-Epidemie 2020 in Deutschland</a>.
     </p>
     <p>
