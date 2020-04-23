@@ -21,7 +21,7 @@ export class AppComponent implements OnInit, AfterViewInit{
 
   infectiousPeriod: number = 5;
   maximumInfectionPeriod: number = 28;
-  daysForAverage: number = 7;
+  daysForAverage: number = 1;
   
   title = 'COVID-19 cases - figures and plots';
   today: Date = new Date();

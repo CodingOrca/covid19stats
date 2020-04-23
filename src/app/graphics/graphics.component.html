@@ -81,6 +81,7 @@
             [yAxis]="yAxis"
             [xAxisLabel]="'Total cases: &Sigma;=A+R+&Theta; over time'"
             [yAxisTickFormatting]="yAxisTickFormattingFn"
+            [xAxisTicks]="deltaTimeTicks"
             [xAxisTickFormatting]="dateAxisTickFormattingFn"
             [xScaleMin]="xTimeScaleMin"
             [results]="currentCasesSeries"
@@ -140,6 +141,7 @@
             [xScaleMin]="xTimeScaleMin"
             [yScaleMax]="'5'"
             [yAxisTicks]="reproductionTicks"
+            [xAxisTicks]="deltaTimeTicks"
             [xAxisTickFormatting]="dateAxisTickFormattingFn"
             [results]="currentReproductionSeries"
             [timeline]="timeline"
@@ -165,6 +167,7 @@
             [xScaleMax]="xTimeScaleMax"
             [yScaleMax]="'100'"
             [yScaleMin]="'-100'"
+            [xAxisTicks]="deltaTimeTicks"
             [xAxisTickFormatting]="dateAxisTickFormattingFn"
             [results]="currentMobilitySeries">
         </ngx-charts-line-chart>

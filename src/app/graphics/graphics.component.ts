@@ -33,7 +33,7 @@ export class GraphicsComponent implements OnInit {
     this.renderMobilityData();
   }
 
-  xTimeScaleMin: Date = new Date(Date.now() - 60 * 1000 * 60 * 60 * 24);
+  xTimeScaleMin: Date = new Date(Date.now() - 48 * 1000 * 60 * 60 * 24);
   xTimeScaleMax: Date = new Date(Date.now() - 1 * 1000 * 60 * 60 * 24);
   currentCasesSeries: Array<DataSeries>;
   currentReproductionSeries: Array<DataSeries>;
@@ -110,20 +110,37 @@ export class GraphicsComponent implements OnInit {
     while (s.length < size) s = "0" + s;
     return s;
   }
+  private months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
+  ];
 
   public dateAxisTickFormattingFn = this.dateAxisTickFormatting.bind(this);
   dateAxisTickFormatting(value) {
     let date = new Date(value);
-    return `${this.pad(date.getDate(), 2)}.${this.pad(date.getMonth() + 1, 2)}`;
+    let month = date.getMonth();
+    let dayOfMonth = date.getDate();
+    if (dayOfMonth < 8) return `${this.pad(date.getDate(), 2)}.${this.months[month]}`;
+    else return `${this.pad(date.getDate(), 2)}`;
   }
 
-  deltaTimeTicks: Array<string | Date> = [new Date(2020, 0, 22), new Date()];
+  deltaTimeTicks: Array<Date> = [new Date(2020, 0, 22), new Date()];
   private setDeltaTimeTicks() {
-    this.deltaTimeTicks = new Array<string | Date>();
+    this.deltaTimeTicks = new Array<Date>();
     for (let i = 0; i < this.currentDeltaSeries.length; i++) {
       let date = new Date(this.currentDeltaSeries[i].name);
       if (date.getDay() == 0) {
-        this.deltaTimeTicks.push(this.currentDeltaSeries[i].name);
+        this.deltaTimeTicks.push(new Date(this.currentDeltaSeries[i].name));
       }
     }
   }
