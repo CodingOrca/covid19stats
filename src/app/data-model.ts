@@ -116,6 +116,7 @@ export class CaseData {
     }
   
     flag: string;
+    iso2: string;
   
     recoveredDelta: Tendency;
     deathsDelta: Tendency;
@@ -149,4 +150,18 @@ export class DataSeries {
 export class DataPoint {
   name: any;
   value: number;
+}
+
+export class MobilityData {
+  iso2: string;
+  region: string;
+  subRegion1: string;
+  subRegion2: string;
+  date: Date;
+  retailAndRecreation: number;
+  groceryAndPharmacy: number;
+  parks: number;
+  transitStations: number;
+  workplace: number;
+  residential: number;
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, AfterViewInit, Input } from '@angular/core';
-import { NovelCovidService } from 'src/app/novel-covid/novel-covid.service';
+import { DataService as DataService } from 'src/app/data/data.service';
 import { SummaryViewData, YesterdayData, CaseData, DataSeries, DataPoint} from './data-model';
 import { MatTableDataSource} from '@angular/material/table';
 import { MatSort, SortDirection} from '@angular/material/sort';
@@ -16,8 +16,8 @@ import { SharingService } from './sharing/sharing.service';
 
 export class AppComponent implements OnInit, AfterViewInit{
 
-  currentCountry: SummaryViewData;
-  currentHistory: CaseData[];
+  currentCountry: SummaryViewData = new SummaryViewData();
+  currentHistory: CaseData[] = new Array<CaseData>();
 
   infectiousPeriod: number = 5;
   maximumInfectionPeriod: number = 28;
@@ -38,12 +38,14 @@ export class AppComponent implements OnInit, AfterViewInit{
   constructor(
     private settingsService: SettingsService, 
     private sharingService: SharingService,
-    private dataService: NovelCovidService) {
+    private dataService: DataService) {
   }
 
   async ngOnInit(): Promise<void> {
 
     this.settingsService.perMilSummary.subscribe(on => this.perMillSummary = on);
+    let mobilityData = await this.dataService.getMobilityData();
+    this.sharingService.setMobilityData(mobilityData);
 
     // get ALL historical data, of all provinces:
     this.allHistoricalData = await this.dataService.getAllHistoricalData();
@@ -122,7 +124,8 @@ export class AppComponent implements OnInit, AfterViewInit{
       s.testsPerMille = countryDetails.testsPerOneMillion  / 1000.0;
       s.casesPerMille = countryDetails.casesPerOneMillion / 1000.0;
       s.deathsPerMille = countryDetails.deathsPerOneMillion / 1000.0;
-      s.flag = countryDetails.countryInfo.flag;   
+      s.flag = countryDetails.countryInfo.flag;  
+      s.iso2 = countryDetails.countryInfo.iso2; 
     }
     return s;
   }

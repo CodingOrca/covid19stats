@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { DataSeries, SummaryViewData, CaseData, DataPoint } from '../data-model';
+import { DataSeries, SummaryViewData, CaseData, DataPoint, MobilityData } from '../data-model';
 import { SettingsService } from '../settings/settings.service';
+import { SharingService } from '../sharing/sharing.service';
 
 @Component({
   selector: 'app-graphics',
@@ -16,7 +17,8 @@ export class GraphicsComponent implements OnInit {
 
   @Input() set currentCountry(value: SummaryViewData) {
     this.myCurrentCountry = value;
-    this.RenderCountryHistory();
+    this.renderCountryHistory();
+    this.renderMobilityData();
   }
 
   myCurrentHistory: CaseData[] = new Array<CaseData>();
@@ -27,15 +29,17 @@ export class GraphicsComponent implements OnInit {
   @Input() set currentHistory(history: CaseData[])
   {
     this.myCurrentHistory = history;
-    this.RenderCountryHistory();
+    this.renderCountryHistory();
+    this.renderMobilityData();
   }
 
-  xTimeScaleMin: Date = new Date(Date.now() - 42 * 1000 * 60 * 60 * 24);
+  xTimeScaleMin: Date = new Date(Date.now() - 60 * 1000 * 60 * 60 * 24);
   xTimeScaleMax: Date = new Date(Date.now() - 1 * 1000 * 60 * 60 * 24);
   currentCasesSeries: Array<DataSeries>;
   currentReproductionSeries: Array<DataSeries>;
   currentLogSeries: Array<DataSeries>;
   currentDeltaSeries: Array<DataSeries>;
+  currentMobilitySeries: Array<DataSeries>;
 
   // options
   legend: boolean = false;
@@ -144,42 +148,33 @@ export class GraphicsComponent implements OnInit {
     domain: ['#ff6666', '#66aa66', '#6666ff', '#a8385d', '#aae3f5']
   };
 
+  mobilityColorScheme = {
+    domain: ['#669999', '#6666ff', '#66aa66', '#ff3366', '#ff9933', '#ff6699']
+  };
+
   maxCases: number = 1;
   maxDelta: number = 10000;
 
-  constructor(private settingsService: SettingsService) { 
+  mobilityData: MobilityData[] = new Array<MobilityData>();  
+
+  constructor(private settingsService: SettingsService, private sharingService: SharingService) { 
   }
 
   ngOnInit(): void {
     this.maxCases = 1;
     this.maxDelta = 10000;
+    this.sharingService.mobilityData.subscribe(
+      newData => this.mobilityData = newData
+    );
   }
 
-  private async RenderCountryHistory() {
-    let activeCases = new DataSeries();
-    activeCases.name = "Active, assumed non-infectious";
-    activeCases.series = new Array<DataPoint>();
-
-    let contagiousCases = new DataSeries();
-    contagiousCases.name = "Active, assumed infectious";
-    contagiousCases.series = new Array<DataPoint>();
-
-    let deathCases = new DataSeries();
-    deathCases.name = "Deaths";
-    deathCases.series = new Array<DataPoint>();
-
-    let recoveredCases = new DataSeries();
-    recoveredCases.name = "Recovered";
-    recoveredCases.series = new Array<DataPoint>();
-
-    let reproductionNumbers = new DataSeries();
-    reproductionNumbers.name = "Reproduction number";
-    reproductionNumbers.series = new Array<DataPoint>();
-
-    let logarithmicValues = new DataSeries();
-    logarithmicValues.name = "Cases";
-    logarithmicValues.series = new Array<DataPoint>();
-
+  private async renderCountryHistory() {
+    let activeCases = this.createSeries("Active, assumed non-infectious");
+    let contagiousCases = this.createSeries("Active, assumed infectious");
+    let deathCases = this.createSeries("Deaths");
+    let recoveredCases = this.createSeries("Recovered");
+    let reproductionNumbers = this.createSeries("Reproduction number");
+    let logarithmicValues = this.createSeries("Cases");
     let deltaSeries = new Array<DataSeries>();
 
     for (let i = 0; i < this.currentHistory.length; i++) {
@@ -236,6 +231,40 @@ export class GraphicsComponent implements OnInit {
 
     this.currentDeltaSeries = deltaSeries;
     this.setDeltaTimeTicks();
+  }
+
+  private renderMobilityData() {
+    this.currentMobilitySeries = new Array<DataSeries>();
+    let retailSeries = this.createSeries("retail & recreation");
+    let grocerySeries = this.createSeries("grocery & pharmacies");
+    let parksSeries = this.createSeries("parks");
+    let transitSeries = this.createSeries("transit stations");
+    let workplaceSeries = this.createSeries("workplace");
+    //let residentialSeries = this.createSeries("residential");
+    this.currentMobilitySeries.push(retailSeries);
+    this.currentMobilitySeries.push(grocerySeries);
+    this.currentMobilitySeries.push(parksSeries);
+    this.currentMobilitySeries.push(transitSeries);
+    this.currentMobilitySeries.push(workplaceSeries);
+    //this.currentMobilitySeries.push(residentialSeries);
+    for(let i = 0; i < this.mobilityData.length; i++) {
+      let item = this.mobilityData[i];
+      if(item.iso2 != this.currentCountry.iso2) continue;
+      if(item.subRegion1 || item.subRegion2) continue;
+      retailSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.retailAndRecreation));
+      grocerySeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.groceryAndPharmacy));
+      parksSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.parks));
+      transitSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.transitStations));
+      workplaceSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.workplace));
+      //residentialSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.residential));
+    }
+  }
+
+  private createSeries(name: string): DataSeries {
+    let series = new DataSeries();
+    series.name = name;
+    series.series = new Array<DataPoint>();
+    return series;
   }
 
   private static CreateDataPoint(date: Date, value: number): DataPoint {

@@ -152,6 +152,29 @@
     </ng-template>
     </mat-tab>
     <mat-tab>
+    <ng-template mat-tab-label><mat-icon inline=true>multiline_chart</mat-icon></ng-template>
+    <ng-template matTabContent>
+        <div class="chart">
+        <ngx-charts-line-chart
+            [scheme]="mobilityColorScheme"
+            [showXAxisLabel]=false
+            [showYAxisLabel]=false
+            [xAxis]="xAxis"
+            [yAxis]="yAxis"
+            [xScaleMin]="xTimeScaleMin"
+            [xScaleMax]="xTimeScaleMax"
+            [yScaleMax]="'100'"
+            [yScaleMin]="'-100'"
+            [xAxisTickFormatting]="dateAxisTickFormattingFn"
+            [results]="currentMobilitySeries">
+        </ngx-charts-line-chart>
+        </div>
+        <div class="center">
+        google mobility report: changes in % 
+        </div>
+    </ng-template>
+    </mat-tab>
+    <!-- <mat-tab>
     <ng-template mat-tab-label>ln&Sigma;</ng-template>
     <ng-template matTabContent>
         <div class="chart">
@@ -180,5 +203,5 @@
             total cases (logarithmic)
         </div>
     </ng-template>
-    </mat-tab>
+    </mat-tab> -->
 </mat-tab-group>
