@@ -76,10 +76,15 @@ table.summary-table {
   margin-right: 3px;
 }
 
-.mat-footer-cell {
+.mat-row {
+  min-height: 38px!important;
+}
+
+.mat-header-row {
   font-size: smaller;
   background-color: $primary-light;
   font-weight: bold;
+  min-height: 38px!important;
 }
 
 .mat-column-country {
