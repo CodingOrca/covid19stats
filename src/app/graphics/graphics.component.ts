@@ -130,7 +130,7 @@ export class GraphicsComponent implements OnInit {
     let date = new Date(value);
     let month = date.getMonth();
     let dayOfMonth = date.getDate();
-    if (dayOfMonth < 8) return `${this.pad(date.getDate(), 2)}.${this.months[month]}`;
+    if (dayOfMonth < 8) return `${this.months[month]}`;
     else return `${this.pad(date.getDate(), 2)}`;
   }
 
