@@ -1,13 +1,12 @@
-
-<mat-dialog-content>
-    <h1>{{currentCountry.country}}</h1>
+<mat-dialog-content style="padding: 0px 15px 0px 5px">
     <div style="display:flex;direction:rows;">
-        <h2>Facts</h2>
+        <h1>{{currentCountry.country}}</h1>
         <span class="h-fill"></span> 
         <mat-slide-toggle color="primary" [(ngModel)]="perMillSummary">
             <span>&permil;</span>
         </mat-slide-toggle>
     </div>
+    <h2>Facts</h2>
     <!-- Today, {{currentCountry.todayCases | number}} new cases and {{currentCountry.todayDeaths | number}} deaths are reported, 
     but the data collection is not complete and also not reliable. -->
     <p>

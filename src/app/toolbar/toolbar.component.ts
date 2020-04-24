@@ -22,6 +22,7 @@ export class ToolbarComponent implements OnInit {
   {
 //    window.open("https://github.com/CodingOrca/covid19stats/blob/master/README.md");
     const dialogRef = this.dialog.open(InfoDialog, {
+      minWidth: '100vw',
       data: {country: this.currentCountry, history: this.currentHistory}
     });
 
