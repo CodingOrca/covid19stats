@@ -1,31 +1,19 @@
-<div mat-dialog-title style="display:flex;direction:rows;">
-    <h1>{{currentCountry.country}}</h1>
-    <span style="flex: 1 1 auto;"></span> 
-    <button mat-icon-button [mat-dialog-close]>
-        <mat-icon>close</mat-icon>
-    </button>
-</div>
-<div>
-    <!-- Today, {{currentCountry.todayCases | number}} new cases and {{currentCountry.todayDeaths | number}} deaths are reported, 
-    but the data collection is not complete and also not reliable.<br> -->
-    <p>
-    Yesterday, {{currentCountry.delta | number}} new cases where reported.
-    It is expected that during the time they are infectious, each of them will infect 
-    {{currentCountry.reproductionNumber | number:"1.2-2"}} new persons on average, so that 
-    that the number of currently infected person of {{currentCountry.active}} will 
-    <span *ngIf="currentCountry.reproductionNumber > 1.1">increase</span>
-    <span *ngIf="currentCountry.reproductionNumber >= 0.9 && currentCountry.reproductionNumber <= 1.1">stagnate</span>
-    <span *ngIf="currentCountry.reproductionNumber < 0.9">fall</span>.
 
-    </p>
+<mat-dialog-content>
+    <h1>{{currentCountry.country}}</h1>
     <div style="display:flex;direction:rows;">
-        <span *ngIf="!perMillSummary" style="font-size: larger;">Facts - in absolute numbers</span>
-        <span *ngIf="perMillSummary" style="font-size: larger;">Facts - in &permil; of population </span>
+        <h2>Facts</h2>
         <span class="h-fill"></span> 
         <mat-slide-toggle color="primary" [(ngModel)]="perMillSummary">
             <span>&permil;</span>
         </mat-slide-toggle>
     </div>
+    <!-- Today, {{currentCountry.todayCases | number}} new cases and {{currentCountry.todayDeaths | number}} deaths are reported, 
+    but the data collection is not complete and also not reliable. -->
+    <p>
+    Yesterday, {{currentCountry.delta | number}} new cases where reported, {{currentCountry.recoveredDelta}} patients recovered 
+    and unfortunately {{currentCountry.deathsDelta}} patients died.
+    </p>
     <div *ngIf="!perMillSummary">
     Up to now, a total number of {{currentCountry.tests | number}} persons where tested.
     {{currentCountry.cases | number}} results where positive
@@ -41,8 +29,8 @@
         <p><sup>1</sup> should stay below the number of ICU and CCB available in your country. 
             See <a href="https://en.wikipedia.org/wiki/List_of_countries_by_hospital_beds" target="_blank">
                 Wikipedia article <em>List of countries by hospital beds</em></a></p>
-        <p><sup>2</sup> to be compared with the estimated mortality of your country from the last last years 
-        (before the Corona virus), which is 
+        <p><sup>2</sup> the estimated mortality rate of your country from the last years 
+        (before the Corona virus) is 
         {{currentCountry.mortalityRate | number}} per year 
         ({{currentCountry.mortalityRatePerDay | number}} per day).
         See <a href="https://www.wolframalpha.com/input/?i=annual+deaths" target="_blank">Wolfram Alpha</a>.
@@ -65,8 +53,8 @@
         <p><sup>1</sup> should stay below the number of ICU and CCB available in your country. 
             See <a href="https://en.wikipedia.org/wiki/List_of_countries_by_hospital_beds" target="_blank">
                 Wikipedia article <em>List of countries by hospital beds</em></a></p>
-        <p><sup>2</sup> to be compared with the estimated mortality of your country from the last last years 
-        (before the Corona virus), which is 
+        <p><sup>2</sup> the estimated mortality rate for your country from the last years 
+        (before the Corona virus), is 
         {{1000 * currentCountry.mortalityRate / currentCountry.population | number:"1.2-2"}}&permil; 
     of population per year. 
     See <a href="https://www.wolframalpha.com/input/?i=annual+deaths" target="_blank">Wolfram Alpha</a>.
@@ -290,15 +278,15 @@
     <div style="display: flex; flex-direction:row; flex-wrap: wrap; margin:-15px">
         <mat-form-field style="margin-left: 20px; width: 140px">
             <mat-label>Maximal Active infections:</mat-label>
-            <input matInput placeholder="Ex. 1000000" [(ngModel)]="desiredMaxActive">
+            <input tabindex="-1" matInput placeholder="Ex. 1000000" [(ngModel)]="desiredMaxActive">
         </mat-form-field>
         <div style="white-space: nowrap;margin-left: 15px;">
-            <button mat-icon-button color="accent"  matTooltip="Reset initial values" (click)="resetSimulationHistory()">
+            <button tabindex="-1" mat-icon-button color="accent"  matTooltip="Reset initial values" (click)="resetSimulationHistory()">
                 <mat-icon>refresh</mat-icon>
             </button>
         </div>
         <div style="white-space: nowrap;margin-left: 15px;">
-            <button mat-icon-button color="accent"  matTooltip="Start simulation" (click)="createSimulationSeries()">
+            <button tabindex="-1" mat-icon-button color="accent"  matTooltip="Start simulation" (click)="createSimulationSeries()">
                 <mat-icon>play_arrow</mat-icon>
             </button>
         </div>
@@ -312,4 +300,25 @@
     <p>They say, Covid-19's "natural" reproduction number R<sub>0</sub> is between 3 and 5. By "natural" I mean without any social
          distancing, so as we used to live before. Probably you can see in the graph, it is going to take a long time 
          until we will have the freedom to live as before...
-</div>
+    </p>
+    <h2>Disclaimer & Credits</h2> 
+    <p>Implemented by <a href="mailto:artur.pusztai@live.com">artur.pusztai@live.com</a></p>
+    <p>The application is work in progress, not sufficiently tested, and not suitable for decision making.</p>
+    <p>
+      Covid-19 case data are provided by <a href="https://systems.jhu.edu/" target="_blank">John Hopkins University</a> and retrieved with the APIs provided by 
+      <a href="https://github.com/NovelCOVID" target="_blank">NovelCOVID</a>
+    </p>
+    <p>Mobility profiles are provided by google: 
+      <a href="https://www.google.com/covid19/mobility/" target="_blank">
+        See how your community is moving around differently due to COVID-19</a> 
+    </p>
+    <p>
+    Mortality rates are taken from 
+    <a href="https://www.wolframalpha.com/input/?i=annual+deaths" target="_blank">Wolfram Alpha</a>.
+    </p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button [mat-dialog-close]>
+        close
+    </button>
+</mat-dialog-actions>
