@@ -1,11 +1,14 @@
 # Corona
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.0.
+It is deployed here: [COVID-19 cases - figurers and plots ](https://coronaservice.z6.web.core.windows.net)
 
 ## Authoring
-Open a Terminal in VS Code Menu and do this:
+You need [Node](https://nodejs.org/en/download) and [Visual Studio Code](https://code.visualstudio.com/download) installed on your computer.
+
+Open the cloned directory in VS Code and in a Terminal do this:
 * `npm install` - this takes several minutes when doing it the first time.
-* `ng serve -o` - this starts the integrated web server, compiles and opens http://localhost:4200 in your default web browser.
+* `ng serve -o` - this starts the integrated web server, compiles and opens `http://localhost:4200` in your default web browser.
 
 ## Development server
 
