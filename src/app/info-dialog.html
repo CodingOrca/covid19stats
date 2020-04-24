@@ -182,7 +182,7 @@
     <br>
     <div style="display: flex; flex-direction: row; flex-wrap: wrap; margin:-15px">
         <div style="white-space: nowrap; margin-left: 15px;">
-            R<sub>0</sub>: {{reproductionNumber | number:"1.1-1"}}
+            R<sub>0</sub>: {{reproductionNumber | number:"1.2-2"}}
             <mat-slider
                 class="example-margin"
                 [max]="reproductionNumberMax"
@@ -190,7 +190,7 @@
                 [step]="reproductionNumberStep"
                 [thumbLabel]=true
                 [(ngModel)]="reproductionNumber"
-                (change)="createMathModelSeries()"
+                (input)="reproductionNumberPreview($event)"
                 >
             </mat-slider>
         </div>
@@ -203,7 +203,7 @@
                 [step]="infectionPeriodStep"
                 [thumbLabel]=true
                 [(ngModel)]="infectionPeriod"
-                (change)="createMathModelSeries()"
+                (input)="infectionPeriodPreview($event)"
                 >
             </mat-slider>
         </div>

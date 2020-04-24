@@ -71,7 +71,7 @@
             </mat-grid-tile>
             <mat-grid-tile colspan="2" >
             <div class="wrap-item">
-                <div class="vw-tiny with-subscript">R<sub>0</sub> - reproduction number</div>
+                <div class="vw-tiny with-subscript">R<sub>0</sub> - raw estimation</div>
                 <div class="vw-huge">
                 {{currentCountry.reproductionNumber | number:'1.1-1' }}
                 <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta > 0" class="warn">arrow_drop_up</mat-icon>

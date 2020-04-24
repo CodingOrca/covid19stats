@@ -2,6 +2,7 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import {SummaryViewData, DataSeries, DataPoint, CaseData} from "./data-model";
 import { SettingsService } from './settings/settings.service';
+import { MatSliderChange } from '@angular/material/slider';
 
 export interface DialogData {
     country: SummaryViewData;
@@ -38,8 +39,8 @@ export class InfoDialog implements OnInit {
     }
   
     reproductionNumberMin = 0.5;
-    reproductionNumberMax = 5;
-    reproductionNumberStep = 0.1;
+    reproductionNumberMax = 2.0;
+    reproductionNumberStep = 0.01;
     reproductionNumber: number = 2.0;
     infectionPeriodMin = 2;
     infectionPeriodMax = 30;
@@ -259,5 +260,17 @@ export class InfoDialog implements OnInit {
 
     onNoClick(): void {
         this.dialogRef.close();
+    }
+
+    infectionPeriodPreview(event: MatSliderChange)
+    {
+        this.infectionPeriod = event.value;
+        this.createMathModelSeries();
+    }
+
+    reproductionNumberPreview(event: MatSliderChange)
+    {
+        this.reproductionNumber = event.value;
+        this.createMathModelSeries();
     }
 }
