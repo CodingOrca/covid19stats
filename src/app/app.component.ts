@@ -110,7 +110,6 @@ export class AppComponent implements OnInit, AfterViewInit{
     let s = new SummaryViewData();
     s.copyFrom(countryHistory[countryHistory.length - 1]);
     s.deltaDelta = s.delta - countryHistory[countryHistory.length - 2].delta;
-    s.deltaDeaths = s.deaths - countryHistory[countryHistory.length - 2].deaths;
     s.activeDelta = s.active - countryHistory[countryHistory.length - 2].active;
     s.recoveredDelta = s.recovered - countryHistory[countryHistory.length - 2].recovered;
     s.deathsDelta = s.deaths - countryHistory[countryHistory.length - 2].deaths;
@@ -225,13 +224,13 @@ export class AppComponent implements OnInit, AfterViewInit{
         this.displayedColumns = ['country', 'cases', 'active', 'recovered', 'deaths'];
         break;
       case 2:
-        this.displayedColumns = ['country', 'cases', 'delta', 'infectionRate', 'reproductionNumber'];
+        this.displayedColumns = ['country', 'delta', 'recoveredDelta', 'deathsDelta', 'reproductionNumber'];
         break;
       case 3:
-        this.displayedColumns = ['country', 'cases', 'delta', 'infectionRate', 'reproductionNumber'];
+        this.displayedColumns = ['country', 'delta', 'activeDelta', 'infectionRate', 'reproductionNumber'];
         break;
-      case 3:
-        this.displayedColumns = ['country', 'cases', 'delta', 'infectionRate'];
+      case 4:
+        this.displayedColumns = ['country', 'cases', 'delta', 'reproductionNumber'];
         break;
     }
     this.tableData._updateChangeSubscription();

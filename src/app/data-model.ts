@@ -122,7 +122,6 @@ export class CaseData {
     deathsDelta: Tendency;
     activeDelta: Tendency;
     deltaDelta: number;
-    deltaDeaths: number;
     infectionRateDelta: Tendency;
     reproductionNumberDelta: Tendency;
   

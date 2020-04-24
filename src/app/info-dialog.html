@@ -78,14 +78,15 @@
     <a href="https://github.com/NovelCOVID" target="_blank">NovelCOVID</a>.<br>
     For every day since the beginning of case reporting, we define the following indicators:
     <dl>
-        <dt>&Delta; - new cases reported for that day</dt>
-        <dt>&Sigma; - total cases reported until and including on that day</dt>
-        <dt>R - cases known as recovered on that day</dt>
-        <dt>A - cases known to be active on that day</dt>
-        <dt>C - cases known as critical on that day (subset of A)</dt>
-        <dt>&Theta; - total deaths reported until and including that day</dt>
-        <dt>R<sub>0</sub> - reproduction number, reverse calculated from the data of the last 5 days.
-        This is the expected average number of persons which will be infected by one infected person
+        <dt>&Delta;T - new cases; &Delta;R - new recovered; &Delta;D - new deaths.</dt>
+        <dt>T - cumulated reported cases </dt>
+        <dt>R - cumulated recovered cases</dt>
+        <dt>A - currently active cases</dt>
+        <dt>C - currently critical cases (subset of A)</dt>
+        <dt>D - cumulated deaths</dt>
+        <dt>R<sub>0</sub> (<b>Experimental!</b>) - the expected average number of persons which will be infected by one infected person.
+        The estimation of the reproduction number for each day is assuming that on average an infected person is isolated after 
+        5 days of being infectious. This is actually different from county to country so the results here are very inaccurate.<br>
         </dt>
         <dt><mat-icon inline=true>multiline_chart</mat-icon> - data provided by google: 
         <a href="https://www.google.com/covid19/mobility/" target="_blank">
@@ -115,7 +116,7 @@
         new number of infected persons is: 
     </p>
     <p style="text-align: center;">
-        &Delta;<sub>n+1</sub> = r<sub>0</sub> &times; I<sub>n</sub>
+        &Delta;I<sub>n+1</sub> = r<sub>0</sub> &times; I<sub>n</sub>
     </p>
     <p>
         <b>Notes:</b> <br>
@@ -157,7 +158,7 @@
         The newly infected persons on day n can be written as:
     </p>
     <p class="center">
-        &Delta;<sub>n</sub> = r<sub>0</sub> &times; I<sub>n-1</sub> &times; s<sub>n-1</sub><br>
+        &Delta;I<sub>n</sub> = r<sub>0</sub> &times; I<sub>n-1</sub> &times; s<sub>n-1</sub><br>
         s<sub>n</sub> = (P<sub>n</sub> - A<sub>n</sub> - R<sub>n</sub>) / P<sub>n</sub><br>
         P<sub>n</sub> = P<sub>n-1</sub> - D<sub>n</sub>
     </p>
@@ -165,13 +166,13 @@
         The number of recovered persons on day n can be written as 
     </p>
     <div class="center">
-        R<sub>n</sub> = R<sub>n-1</sub> + &Delta;<sub>n-&tau;</sub>
+        R<sub>n</sub> = R<sub>n-1</sub> + &Delta;I<sub>n-&tau;</sub>
     </div>
     And the number of infectious and infected persons on day n is:
     <p class="center">
-        I<sub>n</sub> = I<sub>n-1</sub> + &Delta;<sub>n</sub>- &Delta;<sub>n-&tau;</sub><br>
+        I<sub>n</sub> = I<sub>n-1</sub> + &Delta;I<sub>n</sub>- &Delta;I<sub>n-&tau;</sub><br>
         <br>
-        A<sub>n</sub> = A<sub>n-1</sub> + &Delta;<sub>n</sub> - &Delta;<sub>n-&epsilon;</sub><br>
+        A<sub>n</sub> = A<sub>n-1</sub> + &Delta;I<sub>n</sub> - &Delta;I<sub>n-&epsilon;</sub><br>
     </p>
     For now we assume there are no deaths:
     <p class="center">

@@ -9,7 +9,7 @@
         <mat-grid-list cols="3" rowHeight="48px" style="margin: 0.5em;" >
             <mat-grid-tile class="summary-tile">
             <div class="wrap-item">
-                <div class="vw-tiny">&Sigma; - total cases:</div>
+                <div class="vw-tiny">Total cases:</div>
                 <div class="vw-huge">
                 {{currentCountry.cases | number}}
                 </div>
@@ -17,7 +17,7 @@
             </mat-grid-tile>
             <mat-grid-tile>
             <div class="wrap-item">
-                <div class="vw-tiny">R - recovered:</div>
+                <div class="vw-tiny">Recovered:</div>
                 <div class="vw-huge">
                 {{currentCountry.recovered | number}}
                 </div>
@@ -25,7 +25,7 @@
             </mat-grid-tile>
             <mat-grid-tile>
             <div class="wrap-item">
-                <div class="vw-tiny">&Theta; - deaths:</div>
+                <div class="vw-tiny">Deaths:</div>
                 <div class="vw-huge">
                 {{currentCountry.deaths | number}}
                 </div>
@@ -33,7 +33,7 @@
             </mat-grid-tile>
             <mat-grid-tile>
             <div class="wrap-item">
-                <div class="vw-tiny">&Delta; - new cases:</div>
+                <div class="vw-tiny">New cases:</div>
                 <div class="vw-huge">
                 {{currentCountry.delta | number}}
                 <mat-icon [inline]=true *ngIf="currentCountry.deltaDelta > 0" class="warn">arrow_drop_up</mat-icon>
@@ -44,7 +44,23 @@
             </mat-grid-tile>
             <mat-grid-tile>
             <div class="wrap-item">
-                <div class="vw-tiny">A - active cases:</div>
+                <div class="vw-tiny">New recovered:</div>
+                <div class="vw-huge">
+                {{currentCountry.recoveredDelta | number}}
+                </div>
+            </div>  
+            </mat-grid-tile>
+            <mat-grid-tile>
+            <div class="wrap-item">
+                <div class="vw-tiny">New deaths:</div>
+                <div class="vw-huge">
+                {{currentCountry.deathsDelta | number}}
+                </div>
+            </div>  
+            </mat-grid-tile>
+            <mat-grid-tile>
+            <div class="wrap-item">
+                <div class="vw-tiny">Active cases:</div>
                 <div class="vw-huge">
                 {{currentCountry.active | number}}
                 <mat-icon inline=true *ngIf="currentCountry.activeDelta > 0" class="warn">arrow_drop_up</mat-icon>
@@ -53,9 +69,9 @@
                 </div>
             </div>
             </mat-grid-tile>
-            <mat-grid-tile >
+            <mat-grid-tile colspan="2" >
             <div class="wrap-item">
-                <div class="vw-tiny with-subscript">R<sub>0</sub> - repr. nr.</div>
+                <div class="vw-tiny with-subscript">R<sub>0</sub> - reproduction number</div>
                 <div class="vw-huge">
                 {{currentCountry.reproductionNumber | number:'1.1-1' }}
                 <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta > 0" class="warn">arrow_drop_up</mat-icon>
@@ -79,7 +95,7 @@
             [showXAxisLabel]="false"
             [xAxis]="xAxis"
             [yAxis]="yAxis"
-            [xAxisLabel]="'Total cases: &Sigma;=A+R+&Theta; over time'"
+            [xAxisLabel]="'Total cases: T=A+R+D over time'"
             [yAxisTickFormatting]="yAxisTickFormattingFn"
             [xAxisTicks]="deltaTimeTicks"
             [xAxisTickFormatting]="dateAxisTickFormattingFn"
@@ -93,7 +109,7 @@
         <span class="active-color">active</span>, 
         <span class="recovered-color">recovered</span>, 
         <span class="deaths-color">deaths</span>:&nbsp;
-        &Sigma; = A + R + &Theta;
+        T = A + R + D
         </div>
     </ng-template> 
     </mat-tab>
@@ -178,7 +194,7 @@
     </ng-template>
     </mat-tab>
     <!-- <mat-tab>
-    <ng-template mat-tab-label>ln&Sigma;</ng-template>
+    <ng-template mat-tab-label>lnT</ng-template>
     <ng-template matTabContent>
         <div class="chart">
         <ngx-charts-line-chart
@@ -191,7 +207,7 @@
             [xAxis]="xAxis"
             [yAxis]="yAxis"
             [yAxisTicks]="yLogTicks"
-            [xAxisLabel]="'Total cases (logarithmic): &Sigma; over time'"
+            [xAxisLabel]="'Total cases (logarithmic): T over time'"
             [yAxisLabel]="yLogLabel"
             [xScaleMin]="xTimeScaleMin"
             [yScaleMin]="yLogScaleMin"
