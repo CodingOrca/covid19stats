@@ -158,7 +158,7 @@ export class GraphicsComponent implements OnInit {
   }
 
   colorScheme = {
-    domain: ['#ff6666', '#ff7777', '#66aa66', '#6666ff', '#a8385d', '#aae3f5']
+    domain: ['#ff6666', '#ff7777', '#ff8888', '#66aa66', '#6666ff', '#a8385d', '#aae3f5']
   };
 
   deltaColorScheme = {
@@ -187,7 +187,8 @@ export class GraphicsComponent implements OnInit {
 
   private async renderCountryHistory() {
     let activeCases = this.createSeries("Active, assumed non-infectious");
-    let contagiousCases = this.createSeries("Active, assumed infectious");
+    let infectiousCases = this.createSeries("Active, assumed infectious");
+    let quarantineCases = this.createSeries("Active, assumed in quarantine");
     let deathCases = this.createSeries("Deaths");
     let recoveredCases = this.createSeries("Recovered");
     let reproductionNumbers = this.createSeries("Reproduction number");
@@ -198,8 +199,10 @@ export class GraphicsComponent implements OnInit {
       let entry = this.currentHistory[i];
       recoveredCases.series.push(GraphicsComponent.CreateDataPoint(entry.updated, entry.recovered));
       deathCases.series.push(GraphicsComponent.CreateDataPoint(entry.updated, entry.deaths));
-      activeCases.series.push(GraphicsComponent.CreateDataPoint(entry.updated, entry.active - entry.infectious));
-      contagiousCases.series.push(GraphicsComponent.CreateDataPoint(entry.updated, entry.infectious));
+      activeCases.series.push(GraphicsComponent.CreateDataPoint(entry.updated, 
+        entry.active - entry.assumedInfectious - entry.assumedQuarantine));
+      infectiousCases.series.push(GraphicsComponent.CreateDataPoint(entry.updated, entry.assumedInfectious));
+      quarantineCases.series.push(GraphicsComponent.CreateDataPoint(entry.updated, entry.assumedQuarantine));
 
       reproductionNumbers.series.push(GraphicsComponent.CreateDataPoint(entry.updated, entry.reproductionNumber));
 
@@ -235,7 +238,8 @@ export class GraphicsComponent implements OnInit {
       }
     }
     this.currentCasesSeries = new Array<DataSeries>();
-    this.currentCasesSeries.push(contagiousCases);
+    this.currentCasesSeries.push(infectiousCases);
+    this.currentCasesSeries.push(quarantineCases);
     this.currentCasesSeries.push(activeCases);
     this.currentCasesSeries.push(recoveredCases);
     this.currentCasesSeries.push(deathCases);

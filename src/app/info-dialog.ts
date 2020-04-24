@@ -107,16 +107,16 @@ export class InfoDialog implements OnInit {
             let h = new CaseData();
             h.updated = new Date(Number(startDate) + i * 1000 * 60 * 60 * 24)
             h.deaths = 0;
-            h.delta = r * this.simulationHistory[i-1].infectious * (population - this.simulationHistory[i-1].active - this.simulationHistory[i-1].recovered) / population;
+            h.delta = r * this.simulationHistory[i-1].assumedInfectious * (population - this.simulationHistory[i-1].active - this.simulationHistory[i-1].recovered) / population;
             if(h.delta < 0) h.delta = 0;
             h.cases = this.simulationHistory[i-1].cases + h.delta;
             h.recovered = this.simulationHistory[i-1].recovered;
-            h.infectious = this.simulationHistory[i-1].infectious + h.delta;
+            h.assumedInfectious = this.simulationHistory[i-1].assumedInfectious + h.delta;
             if(i >= this.activePeriod) {
                 h.recovered += this.simulationHistory[i-this.activePeriod].delta;
             }
             if(i >= this.infectionPeriod) {
-                h.infectious -= this.simulationHistory[i-this.infectionPeriod].delta;
+                h.assumedInfectious -= this.simulationHistory[i-this.infectionPeriod].delta;
             }
             this.simulationHistory.push(h);
             this.addPointToSeries(h.updated, h.active, aSeries);

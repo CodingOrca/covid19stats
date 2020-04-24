@@ -20,6 +20,7 @@ export class AppComponent implements OnInit, AfterViewInit{
   currentHistory: CaseData[] = new Array<CaseData>();
 
   infectiousPeriod: number = 5;
+  quarantinePeriod: number = 14;
   maximumInfectionPeriod: number = 28;
   daysForAverage: number = 7;
   
@@ -134,20 +135,26 @@ export class AppComponent implements OnInit, AfterViewInit{
     for (let entry of countryHistory) {
       entry.delta = 0;
       entry.infectionRate = 0;
-      entry.infectious = 0;
+      entry.assumedInfectious = 0;
+      entry.assumedQuarantine = 0;
       if(i > 0)
       {
         entry.delta = entry.cases - countryHistory[i-1].cases;
-        entry.infectious += entry.delta + countryHistory[i-1].infectious;
+        entry.assumedInfectious += entry.delta + countryHistory[i-1].assumedInfectious;
+        entry.assumedQuarantine = countryHistory[i-1].assumedQuarantine
         if(i > this.infectiousPeriod) {
-          entry.infectious -= countryHistory[i-this.infectiousPeriod].delta;
+          entry.assumedInfectious -= countryHistory[i-this.infectiousPeriod].delta;
+          entry.assumedQuarantine += countryHistory[i-this.infectiousPeriod].delta;
+        }
+        if(i > this.quarantinePeriod) {
+          entry.assumedQuarantine -= countryHistory[i-this.quarantinePeriod].delta;
         }
         let j = Math.min(this.daysForAverage,i);
         for(let k = i-j; k < i; k++)
         {
-          if(countryHistory[k].infectious > 0) {
+          if(countryHistory[k].assumedInfectious > 0) {
             let gDelta = countryHistory[k+1].cases - countryHistory[k].cases;
-            entry.infectionRate += 100 *  gDelta / countryHistory[k].infectious / j;
+            entry.infectionRate += 100 *  gDelta / countryHistory[k].assumedInfectious / j;
           }
         }
       }
