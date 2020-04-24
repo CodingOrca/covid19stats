@@ -1,6 +1,7 @@
 # Corona
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.0.
+
 It is deployed here: [COVID-19 cases - figurers and plots ](https://coronaservice.z6.web.core.windows.net)
 
 ## Authoring
