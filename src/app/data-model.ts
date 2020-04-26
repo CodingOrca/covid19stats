@@ -16,18 +16,19 @@ export class CaseData {
   
     delta: number;
     reproductionNumber: number;
-    infectionRate: number;
+    infectionRate: number = 0;
   
     public copyFrom(c: CaseData) {
+      this.updated = new Date(c.updated);
       this.country = c.country;
       this.cases = c.cases;
       this.deaths = c.deaths;
       this.recovered = c.recovered;
-      this.updated = new Date(c.updated);
+      this.assumedQuarantine = c.assumedQuarantine;
+      this.assumedInfectious = c.assumedInfectious;
       this.delta = c.delta;
       this.reproductionNumber = c.reproductionNumber;
       this.infectionRate = c.infectionRate;
-      this.assumedInfectious = c.assumedInfectious;
     }
   }
   

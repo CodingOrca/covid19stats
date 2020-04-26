@@ -61,7 +61,7 @@
     </div>
     </div>
     <h2>Data and Symbols</h2>
-    Covid-19 case data are provided by <a href="https://systems.jhu.edu/" target="_blank">John Hopkins University</a> and retrieved with the APIs provided by 
+    Covid-19 case data are provided by <a href="https://systems.jhu.edu/" target="_blank">Johns Hopkins University</a> and retrieved with the APIs provided by 
     <a href="https://github.com/NovelCOVID" target="_blank">NovelCOVID</a>.<br>
     For every day since the beginning of case reporting, we define the following indicators:
     <dl>
@@ -180,35 +180,7 @@
         of {{currentCountry.country}}: {{currentCountry.population | number:"1.0-0"}}.
     </p>
     <br>
-    <div style="display: flex; flex-direction: row; flex-wrap: wrap; margin:-15px">
-        <div style="white-space: nowrap; margin-left: 15px;">
-            R<sub>0</sub>: {{reproductionNumber | number:"1.2-2"}}
-            <mat-slider
-                class="example-margin"
-                [max]="reproductionNumberMax"
-                [min]="reproductionNumberMin"
-                [step]="reproductionNumberStep"
-                [thumbLabel]=true
-                [(ngModel)]="reproductionNumber"
-                (input)="reproductionNumberPreview($event)"
-                >
-            </mat-slider>
-        </div>
-        <div style="white-space: nowrap; margin-left: 15px;">
-            &tau;: {{infectionPeriod | number:"1.0-0"}} days
-            <mat-slider
-                class="example-margin"
-                [max]="infectionPeriodMax"
-                [min]="infectionPeriodMin"
-                [step]="infectionPeriodStep"
-                [thumbLabel]=true
-                [(ngModel)]="infectionPeriod"
-                (input)="infectionPeriodPreview($event)"
-                >
-            </mat-slider>
-        </div>
-    </div><br>
-    <div style="height: 40vh;margin-left: -15px;">
+    <div style="height: 30vh;margin-left: -15px;">
         <ngx-charts-line-chart
             [legend]="false"
             [roundDomains]=true
@@ -223,9 +195,32 @@
             [results]="mathModelSeries"
             [timeline]=false>
         </ngx-charts-line-chart>
+    </div><br>
+    <div style="display: flex; flex-direction: row; flex-wrap: wrap; margin:-15px">
+        <div style="white-space: nowrap; margin-left: 15px;">
+            R<sub>0</sub>: {{reproductionNumber | number:"1.2-2"}}
+            <mat-slider class="example-margin" [max]="reproductionNumberMax" [min]="reproductionNumberMin"
+                [step]="reproductionNumberStep" [thumbLabel]=true [(ngModel)]="reproductionNumber"
+                (input)="reproductionNumberPreview($event)">
+            </mat-slider>
+        </div>
+        <div style="white-space: nowrap; margin-left: 15px;">
+            &tau;: {{infectionPeriod | number:"1.0-0"}} days
+            <mat-slider class="example-margin" [max]="infectionPeriodMax" [min]="infectionPeriodMin"
+                [step]="infectionPeriodStep" [thumbLabel]=true [(ngModel)]="infectionPeriod"
+                (input)="infectionPeriodPreview($event)">
+            </mat-slider>
+        </div>
+        <div style="white-space: nowrap; margin-left: 15px;">
+            simulation period: {{simulationDays | number:"1.0-0"}} days
+            <mat-slider class="example-margin" [max]="simulationDaysMax" [min]="simulationDaysMin"
+                [step]="simulationDaysStep" [thumbLabel]=true [(ngModel)]="simulationDays"
+                (input)="simulationDaysPreview($event)">
+            </mat-slider>
+        </div>
     </div>
-    <p></p>
-    <p style="font-size:larger">Simulation</p>
+    <br>
+    <!-- <p style="font-size:larger">Simulation</p>
     <p>
     All measures taken by the government of your country try to influence the basic reproduction rate r<sub>0</sub> in such a way that 
     the health system is not getting overloaded. In particular, the critical cases C defined above shall not
@@ -275,8 +270,8 @@
         </ngx-charts-line-chart>
     </div>
     <div style="display: flex; flex-direction:row; flex-wrap: wrap; margin:-15px">
-        <mat-form-field style="margin-left: 20px; width: 140px">
-            <mat-label>Maximal Active infections:</mat-label>
+        <mat-form-field style="margin-left: 20px; width: 120px">
+            <mat-label>Limit active infections:</mat-label>
             <input tabindex="-1" matInput placeholder="Ex. 1000000" [(ngModel)]="desiredMaxActive">
         </mat-form-field>
         <div style="white-space: nowrap;margin-left: 15px;">
@@ -295,25 +290,34 @@
         between 1 and 5, and tries to reach the number of simultaneously infected person you choose. The program will change 
         the value only once every 14 days. It is never going up more than one step of 0.5 - but if needed, it is allowed to
         go down as much as needed, but not below 1.
-    </p>
-    <p>They say, Covid-19's "natural" reproduction number R<sub>0</sub> is between 3 and 5. By "natural" I mean without any social
-         distancing, so as we used to live before. Probably you can see in the graph, it is going to take a long time 
-         until we will have the freedom to live as before...
+    </p> -->
+    <p>Covid-19's basic reproduction number R<sub>0</sub> is estimated between 1.4 and 5.7, under "natural" 
+        social behavior of the population, as we used to live before or during the start of this pandemic (see 
+        <a href="https://en.wikipedia.org/wiki/Basic_reproduction_number" target="_blank">
+            Wikipedia article on basic reproduction number</a>).<br>
+        Social distancing and other (also hygienic) measures are reducing the basic reproduction number, attempting to
+        bring it and keep it at a value lower than or around 1.<br> 
+        Probably you can see in the simulation that any number larger than 1.4 is leading to a fast
+        increase of simultaneously ill people, which would cause an overloaded health system.
+        Probably it is going to take a long time until we will have the freedom to live as before...
     </p>
     <h2>Disclaimer & Credits</h2> 
-    <p>Implemented by <a href="mailto:artur.pusztai@live.com">artur.pusztai@live.com</a></p>
-    <p>The application is work in progress, not sufficiently tested, and not suitable for decision making.</p>
-    <p>
-      Covid-19 case data are provided by <a href="https://systems.jhu.edu/" target="_blank">John Hopkins University</a> and retrieved with the APIs provided by 
-      <a href="https://github.com/NovelCOVID" target="_blank">NovelCOVID</a>
-    </p>
-    <p>Mobility profiles are provided by google: 
-      <a href="https://www.google.com/covid19/mobility/" target="_blank">
-        See how your community is moving around differently due to COVID-19</a> 
+    <p>Implemented by <a href="https://github.com/CodingOrca">Artur Pusztai</a><br>
+        The application is work in progress, not sufficiently tested, and not suitable for decision making.
     </p>
     <p>
-    Mortality rates are taken from 
-    <a href="https://www.wolframalpha.com/input/?i=annual+deaths" target="_blank">Wolfram Alpha</a>.
+        Covid-19 case data are provided by
+        <a href="https://systems.jhu.edu/" target="_blank">Johns Hopkins University</a>
+        and retrieved with the APIs provided by
+        <a href="https://github.com/NovelCOVID" target="_blank">NovelCOVID</a>
+    </p>
+    <p>Mobility profiles are provided by google:
+        <a href="https://www.google.com/covid19/mobility/" target="_blank">
+            See how your community is moving around differently due to COVID-19</a>
+    </p>
+    <p>
+        Mortality rates are taken from
+        <a href="https://www.wolframalpha.com/input/?i=annual+deaths" target="_blank">Wolfram Alpha</a>.
     </p>
 </mat-dialog-content>
 <mat-dialog-actions align="end">

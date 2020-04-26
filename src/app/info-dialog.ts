@@ -39,13 +39,20 @@ export class InfoDialog implements OnInit {
     }
   
     reproductionNumberMin = 0.5;
-    reproductionNumberMax = 2.0;
+    reproductionNumberMax = 3;
     reproductionNumberStep = 0.01;
     reproductionNumber: number = 2.0;
+
     infectionPeriodMin = 2;
     infectionPeriodMax = 30;
     infectionPeriodStep = 1;
     infectionPeriod: number = 5;
+
+    simulationDaysMin = 7;
+    simulationDaysMax = 700;
+    simulationDaysStep = 7;
+    simulationDays = 350;
+
     activePeriod: number = 14;
 
     private maxActive: number = 1000000;
@@ -87,38 +94,53 @@ export class InfoDialog implements OnInit {
 
     createMathModelSeries() {
         this.mathModelSeries = this.resetSimulationSeries();
+
         let aSeries = new DataSeries();
         aSeries.name = "simulated active";
         aSeries.series = new Array<DataPoint>();
-        this.mathModelSeries.push(aSeries);
+
         let rSeries = new DataSeries();
         rSeries.name = "simulated recovered";
         rSeries.series = new Array<DataPoint>();
+
+        this.mathModelSeries.push(aSeries);
         this.mathModelSeries.push(rSeries);
         // let sSeries = this.mathModelSeries.find(s => s.name=="susceptible");
 
-        let r = this.reproductionNumber / this.infectionPeriod; 
+        let growthRate = this.reproductionNumber / this.infectionPeriod; 
         //Math.pow(this.reproductionNumber + 1, 1 / this.healingTime) - 1;
         let population = this.currentCountry.population;
 
         let startIndex = this.simulationHistory.length;
         let startDate = this.simulationHistory[0].updated;
-        for(let i = startIndex; i < 700; i++) {
+        for(let i = startIndex; i < this.simulationDays; i++) {
             let h = new CaseData();
-            h.updated = new Date(Number(startDate) + i * 1000 * 60 * 60 * 24)
+            let r = growthRate;
             h.deaths = 0;
-            h.delta = r * this.simulationHistory[i-1].assumedInfectious * (population - this.simulationHistory[i-1].active - this.simulationHistory[i-1].recovered) / population;
-            if(h.delta < 0) h.delta = 0;
-            h.cases = this.simulationHistory[i-1].cases + h.delta;
-            h.recovered = this.simulationHistory[i-1].recovered;
-            h.assumedInfectious = this.simulationHistory[i-1].assumedInfectious + h.delta;
-            if(i >= this.activePeriod) {
-                h.recovered += this.simulationHistory[i-this.activePeriod].delta;
+            if (i < startIndex) {
+                h.infectionRate = this.simulationHistory[i].infectionRate;
+                //r = h.infectionRate / 100;
+                h.deaths = this.simulationHistory[i].deaths;
             }
-            if(i >= this.infectionPeriod) {
-                h.assumedInfectious -= this.simulationHistory[i-this.infectionPeriod].delta;
+            h.updated = new Date(Number(startDate) + i * 1000 * 60 * 60 * 24)
+            h.delta = r * this.simulationHistory[i - 1].assumedInfectious * (population - this.simulationHistory[i - 1].active - this.simulationHistory[i - 1].recovered) / population;
+            if (h.delta < 0) h.delta = 0;
+            h.assumedInfectious = this.simulationHistory[i - 1].assumedInfectious + h.delta;
+            h.assumedQuarantine = this.simulationHistory[i - 1].assumedQuarantine;
+            h.recovered = this.simulationHistory[i - 1].recovered;
+            if (i >= this.infectionPeriod) {
+                h.assumedInfectious -= this.simulationHistory[i - this.infectionPeriod].delta;
+                h.assumedQuarantine += this.simulationHistory[i - this.infectionPeriod].delta;
             }
-            this.simulationHistory.push(h);
+            if (i >= this.activePeriod) {
+                h.assumedQuarantine -= this.simulationHistory[i - this.activePeriod].delta;
+                h.recovered += this.simulationHistory[i - this.activePeriod].delta;;
+            }
+            h.cases = h.assumedInfectious + h.assumedQuarantine + h.recovered + h.deaths;
+            if (i >= startIndex)
+                this.simulationHistory.push(h);
+            else
+                this.simulationHistory[i] = h;
             this.addPointToSeries(h.updated, h.active, aSeries);
             this.addPointToSeries(h.updated, h.recovered, rSeries);
             // this.addPointToSeries(i, population - h.recovered - h.active, sSeries);
@@ -127,12 +149,19 @@ export class InfoDialog implements OnInit {
 
     resetSimulationSeries(): DataSeries[]{
         let series = new Array<DataSeries>();
+
         let aSeries = new DataSeries();
-        aSeries.name = "active";
+        aSeries.name = "active (reported)";
         aSeries.series = new Array<DataPoint>();
         series.push(aSeries);
+
+        let aaSeries = new DataSeries();
+        aaSeries.name = "assumed active (estimated)";
+        aaSeries.series = new Array<DataPoint>();
+        series.push(aaSeries);
+
         let rSeries = new DataSeries();
-        rSeries.name = "recovered";
+        rSeries.name = "recovered (reported)";
         rSeries.series = new Array<DataPoint>();
         series.push(rSeries);
         // let sSeries = new DataSeries();
@@ -153,6 +182,9 @@ export class InfoDialog implements OnInit {
             h.copyFrom(this.currentHistory[i]);
             this.simulationHistory.push(h);
             this.addPointToSeries(h.updated, h.active, aSeries);
+            this.addPointToSeries(h.updated,
+                h.assumedInfectious + h.assumedQuarantine + h.assumedHospitalized + h.assumedICU,
+                aaSeries);
             this.addPointToSeries(h.updated, h.recovered, rSeries);
             //this.addPointToSeries(i, this.currentCountry.population - h.active - h.recovered, sSeries);
             this.addPointToSeries(h.updated, h.reproductionNumber, rateSeries);
@@ -163,9 +195,18 @@ export class InfoDialog implements OnInit {
     createSimulationSeries() {
         this.simulationSeries = this.resetSimulationSeries()
 
-        let aSeries = this.simulationSeries.find(s => s.name=="active");
-        let rSeries = this.simulationSeries.find(s => s.name=="recovered");
-//        let sSeries = this.simulationSeries.find(s => s.name=="susceptible");
+        let aSeries = new DataSeries();
+        aSeries.name = "simulated active";
+        aSeries.series = new Array<DataPoint>();
+
+        let rSeries = new DataSeries();
+        rSeries.name = "simulated recovered";
+        rSeries.series = new Array<DataPoint>();
+
+        //        let sSeries = this.simulationSeries.find(s => s.name=="susceptible");
+
+        this.simulationSeries.push(aSeries);
+        this.simulationSeries.push(rSeries);
         let rateSeries = new DataSeries();
         rateSeries.name = "Simulated reproduction number";
         rateSeries.series = new Array<DataPoint>();
@@ -178,7 +219,7 @@ export class InfoDialog implements OnInit {
         let startIndex = this.simulationHistory.length;
         let startDate = this.simulationHistory[0].updated;
         let r = this.simulationHistory[startIndex-1].infectionRate / 100;
-        for(let i = startIndex; i < 800; i++) {
+        for(let i = startIndex; i < 700; i++) {
             let h = new CaseData();
             h.updated = new Date(Number(startDate) + i * 1000 * 60 * 60 * 24)
             h.deaths = 0;
@@ -203,7 +244,7 @@ export class InfoDialog implements OnInit {
                 // the number of new infections today (delta) caused by one hundred yesterdays infected (active)
                 let gDelta = this.simulationHistory[k+1].cases - this.simulationHistory[k].cases;
                 let s = (population - this.simulationHistory[k].active - this.simulationHistory[k].recovered)/population;
-                h.infectionRate += 100 * gDelta / (this.simulationHistory[k].active * s) / j;
+                h.infectionRate += 100 * gDelta / (this.simulationHistory[k].assumedInfectious * s) / j;
               }
             }
             h.reproductionNumber = h.infectionRate / 100 * this.infectionPeriod; // Math.pow(1 + h.infectionRate/100, this.healingTime) - 1;
@@ -271,6 +312,11 @@ export class InfoDialog implements OnInit {
     reproductionNumberPreview(event: MatSliderChange)
     {
         this.reproductionNumber = event.value;
+        this.createMathModelSeries();
+    }
+
+    simulationDaysPreview(event: MatSliderChange) {
+        this.simulationDays = event.value;
         this.createMathModelSeries();
     }
 }
