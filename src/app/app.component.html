@@ -67,6 +67,14 @@
         <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.reproductionNumber | number:'1.1-1'}}</mat-cell>>
       </ng-container>
 
+      <ng-container matColumnDef="mobilityChange">
+        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell" arrowPosition="before"> M </mat-header-cell>>
+        <mat-cell *matCellDef="let element" class="align-right-cell"> 
+          <span *ngIf="element.mobilityChange"> {{element.mobilityChange | number:'1.0-0'}}%</span>
+          <span *ngIf="!element.mobilityChange"> - - - - </span>
+        </mat-cell>>
+      </ng-container>
+
       <mat-row *matRowDef="let row; columns: displayedColumns" 
         [ngClass]="{'highlight': currentCountry == row}"
         (click)="selectCountry(row)">

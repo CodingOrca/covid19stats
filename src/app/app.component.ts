@@ -1,11 +1,12 @@
 import { Component, OnInit, ViewChild, AfterViewInit, Input } from '@angular/core';
 import { DataService as DataService } from 'src/app/data/data.service';
-import { SummaryViewData, YesterdayData, CaseData, DataSeries, DataPoint} from './data-model';
+import { SummaryViewData, YesterdayData, CaseData, DataSeries, DataPoint, MobilityData} from './data-model';
 import { MatTableDataSource} from '@angular/material/table';
 import { MatSort, SortDirection} from '@angular/material/sort';
 import { ViewEncapsulation } from '@angular/core';
 import { SettingsService } from './settings/settings.service';
 import { SharingService } from './sharing/sharing.service';
+import { GraphicsComponent } from './graphics/graphics.component';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,7 @@ export class AppComponent implements OnInit, AfterViewInit{
 
   currentCountry: SummaryViewData = new SummaryViewData();
   currentHistory: CaseData[] = new Array<CaseData>();
+  currentMobilityData: MobilityData[] = new Array<MobilityData>();
 
   infectiousPeriod: number = 5;
   quarantinePeriod: number = 14;
@@ -29,24 +31,29 @@ export class AppComponent implements OnInit, AfterViewInit{
 
   displayedColumns: string[] = ['country', 'cases', 'active', 'critical', 'deaths'];
   tableData: MatTableDataSource<SummaryViewData> = new MatTableDataSource();
-  allHistoricalData: Map<string,CaseData[]>;
+  allHistoricalData: Map<string, CaseData[]> = new Map<string, CaseData[]>();
 
   @ViewChild(MatSort, {static: true}) matSort: MatSort;
 
   private perMillSummary: boolean;
   
 
-  constructor(
-    private settingsService: SettingsService, 
+  constructor(private settingsService: SettingsService, 
     private sharingService: SharingService,
-    private dataService: DataService) {
+    private dataService: DataService)
+  {
+    sharingService.mobilityData.subscribe(newData => this.currentMobilityData = newData);
+    this.sharingService.selectedCountry.subscribe(c => {
+      this.currentCountry = c;
+      this.tableData.filter = "";
+      this.tableData._updateChangeSubscription();
+      this.currentHistory = this.allHistoricalData.get(c.country);
+    });
   }
 
   async ngOnInit(): Promise<void> {
-
     this.settingsService.perMilSummary.subscribe(on => this.perMillSummary = on);
-    let mobilityData = await this.dataService.getMobilityData();
-    this.sharingService.setMobilityData(mobilityData);
+    await this.sharingService.loadMobilityData();
 
     // get ALL historical data, of all provinces:
     this.allHistoricalData = await this.dataService.getAllHistoricalData();
@@ -87,23 +94,13 @@ export class AppComponent implements OnInit, AfterViewInit{
 
     // sort by cases:
     this.tableData = new MatTableDataSource(results.sort((x, y) => x.cases > y.cases ? -1 : 1));
-    this.tableData.sort = this.matSort;
-
-    this.sharingService.selectedCountry.subscribe(c => 
-      {
-        if(c == null) c = this.tableData.data[0];
-        this.currentCountry = c;
-        this.tableData.filter = "";
-        this.tableData._updateChangeSubscription();
-        this.currentHistory = this.allHistoricalData.get(c.country);
-      });
     this.sharingService.setSelectedCountry(this.tableData.data.find( c=> c.country == this.settingsService.country));
   }
 
   ngAfterViewInit() {
     this.changeTabToIndex(this.settingsService.tabIndex);
+    this.tableData.sort = this.matSort;
     this.tableData.sort.active = "cases";
-    this.tableData.sort._markInitialized();
     this.tableData._updateChangeSubscription();
   }
 
@@ -116,6 +113,11 @@ export class AppComponent implements OnInit, AfterViewInit{
     s.deathsDelta = s.deaths - countryHistory[countryHistory.length - 2].deaths;
     s.reproductionNumberDelta = s.reproductionNumber - countryHistory[countryHistory.length - 2].reproductionNumber;
     s.infectionRateDelta = s.infectionRate - countryHistory[countryHistory.length - 2].infectionRate;
+    let mData = this.sharingService.getMobilityData(countryDetails?.countryInfo?.iso2);
+    if (mData != null && mData.length > 0)
+      s.mobilityChange = GraphicsComponent.calculateAverageMobility(mData.length - 1, this.daysForAverage, mData);
+    else s.mobilityChange = null;
+
     if(countryDetails != null) {
       s.todayCases = countryDetails.todayCases;
       s.todayDeaths = countryDetails.todayDeaths;
@@ -151,15 +153,7 @@ export class AppComponent implements OnInit, AfterViewInit{
         }
         let j = Math.min(this.daysForAverage, i);
         entry.infectionRate = 100 * this.calculateAverageReproRate(i, j, countryHistory);
-        // for(let k = i-j; k < i; k++)
-        // {
-        //   if(countryHistory[k].assumedInfectious > 0) {
-        //     let gDelta = countryHistory[k+1].cases - countryHistory[k].cases;
-        //     entry.infectionRate += 100 *  gDelta / countryHistory[k].assumedInfectious / j;
-        //   }
-        // }
       }
-      //entry.reproductionNumber = Math.pow(1+entry.infectionRate/100, this.infectiousPeriod) - 1;
       entry.reproductionNumber = entry.infectionRate / 100 * this.infectiousPeriod;
       i++;
     }
@@ -246,10 +240,10 @@ export class AppComponent implements OnInit, AfterViewInit{
         this.displayedColumns = ['country', 'delta', 'recoveredDelta', 'deathsDelta', 'reproductionNumber'];
         break;
       case 3:
-        this.displayedColumns = ['country', 'delta', 'activeDelta', 'infectionRate', 'reproductionNumber'];
+        this.displayedColumns = ['country', 'delta', 'activeDelta', 'mobilityChange', 'reproductionNumber'];
         break;
       case 4:
-        this.displayedColumns = ['country', 'cases', 'delta', 'reproductionNumber'];
+        this.displayedColumns = ['country', 'delta', 'mobilityChange', 'reproductionNumber'];
         break;
     }
     this.tableData._updateChangeSubscription();

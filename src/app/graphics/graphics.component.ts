@@ -195,7 +195,7 @@ export class GraphicsComponent implements OnInit {
     let logarithmicValues = this.createSeries("Cases");
     let deltaSeries = new Array<DataSeries>();
 
-    for (let i = 0; i < this.currentHistory.length; i++) {
+    for (let i = 0; this.currentHistory != null && i < this.currentHistory.length; i++) {
       let entry = this.currentHistory[i];
       recoveredCases.series.push(GraphicsComponent.CreateDataPoint(entry.updated, entry.recovered));
       deathCases.series.push(GraphicsComponent.CreateDataPoint(entry.updated, entry.deaths));
@@ -270,14 +270,9 @@ export class GraphicsComponent implements OnInit {
     this.currentMobilitySeries.push(workplaceSeries);
     this.currentMobilitySeries.push(averageSeries);
     //this.currentMobilitySeries.push(residentialSeries);
-    let countryData = this.mobilityData.filter(m => m.iso2 == this.currentCountry.iso2 && !m.subRegion2 && !m.subRegion1);
-    for (let i = 0; i < countryData.length; i++) {
-      let item = countryData[i];
-      let avg = 0;
-      let count = Math.min(6, i);
-      for (let k = i - count; k <= i; k++) {
-        avg += countryData[k].average / (count+1);
-      }
+    for (let i = 0; i < this.mobilityData.length; i++) {
+      let item = this.mobilityData[i];
+      let avg = GraphicsComponent.calculateAverageMobility(i, 7, this.mobilityData);
       averageSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, avg));
       retailSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.retailAndRecreation));
       grocerySeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.groceryAndPharmacy));
@@ -286,6 +281,15 @@ export class GraphicsComponent implements OnInit {
       workplaceSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.workplace));
       //residentialSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.residential));
     }
+  }
+
+  public static calculateAverageMobility(i: number, averagePeriod: number, hist: MobilityData[]) {
+    let avg = 0;
+    let count = Math.min(averagePeriod-1, i);
+    for (let k = i - count; k <= i; k++) {
+      avg += hist[k].average / (count + 1);
+    }
+    return avg;
   }
 
   private createSeries(name: string): DataSeries {

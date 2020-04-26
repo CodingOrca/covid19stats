@@ -69,14 +69,32 @@
                 </div>
             </div>
             </mat-grid-tile>
-            <mat-grid-tile colspan="2" >
+            <mat-grid-tile>
             <div class="wrap-item">
-                <div class="vw-tiny with-subscript">R<sub>0</sub> - raw estimation</div>
+                <div class="vw-tiny with-subscript">R<sub>0</sub> estimation:</div>
                 <div class="vw-huge">
-                {{currentCountry.reproductionNumber | number:'1.1-1' }}
+                <span *ngIf="currentCountry.reproductionNumber > 1" 
+                    class="warn">{{currentCountry.reproductionNumber | number:'1.1-1' }}
+                </span>
+                <span *ngIf="currentCountry.reproductionNumber <= 1" 
+                    class="green">{{currentCountry.reproductionNumber | number:'1.1-1' }}
+                </span>
                 <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta > 0" class="warn">arrow_drop_up</mat-icon>
                 <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta < 0" class="green">arrow_drop_down</mat-icon>
                 <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta == 0">arrow_right</mat-icon>
+                </div>
+            </div>
+            </mat-grid-tile>
+            <mat-grid-tile>
+            <div class="wrap-item">
+                <div class="vw-tiny">Mobility change:</div>
+                <div class="vw-huge">
+                    <span *ngIf="currentCountry.mobilityChange">
+                        {{currentCountry.mobilityChange | number:'1.0-0' }}%
+                    </span>
+                    <span *ngIf="!currentCountry.mobilityChange">
+                        - - - -
+                    </span>
                 </div>
             </div>
             </mat-grid-tile>
@@ -170,7 +188,7 @@
     </ng-template>
     </mat-tab>
     <mat-tab>
-    <ng-template mat-tab-label><mat-icon inline=true>multiline_chart</mat-icon></ng-template>
+    <ng-template mat-tab-label>M</ng-template>
     <ng-template matTabContent>
         <div class="chart">
         <ngx-charts-line-chart

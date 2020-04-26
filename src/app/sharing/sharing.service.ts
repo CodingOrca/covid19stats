@@ -15,11 +15,21 @@ export class SharingService {
     if(country != null) {
       this.settings.country = country.country;
     }
+    let data = this._allMobilityData.filter(m => m.iso2 == this.mySelectedCountry.value.iso2 && !m.subRegion2 && !m.subRegion1);
+    this.mobilityDataBS.next(data);
+  
+  }
+
+  private _allMobilityData: MobilityData[] = new Array<MobilityData>();
+  public getMobilityData(iso2: string = null): MobilityData[] {
+    return this._allMobilityData.filter(m => m.iso2 == iso2 && !m.subRegion2 && !m.subRegion1);
   }
 
   private mobilityDataBS = new BehaviorSubject<MobilityData[]>(new Array<MobilityData>());
   mobilityData = this.mobilityDataBS.asObservable();
-  setMobilityData(data: MobilityData[]) {
+  async loadMobilityData() {
+    this._allMobilityData = await this.dataService.getMobilityData();
+    let data = this._allMobilityData.filter(m => m.iso2 == this.mySelectedCountry.value.iso2 && !m.subRegion2 && !m.subRegion1);
     this.mobilityDataBS.next(data);
   }
 
