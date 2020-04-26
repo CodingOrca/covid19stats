@@ -270,14 +270,13 @@ export class GraphicsComponent implements OnInit {
     this.currentMobilitySeries.push(workplaceSeries);
     this.currentMobilitySeries.push(averageSeries);
     //this.currentMobilitySeries.push(residentialSeries);
-    for(let i = 0; i < this.mobilityData.length; i++) {
-      let item = this.mobilityData[i];
-      if(item.iso2 != this.currentCountry.iso2) continue;
-      if (item.subRegion1 || item.subRegion2) continue;
+    let countryData = this.mobilityData.filter(m => m.iso2 == this.currentCountry.iso2 && !m.subRegion2 && !m.subRegion1);
+    for (let i = 0; i < countryData.length; i++) {
+      let item = countryData[i];
       let avg = 0;
       let count = Math.min(6, i);
       for (let k = i - count; k <= i; k++) {
-        avg += this.mobilityData[k].average / (count+1);
+        avg += countryData[k].average / (count+1);
       }
       averageSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, avg));
       retailSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.retailAndRecreation));

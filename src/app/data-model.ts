@@ -161,13 +161,14 @@ export class MobilityData {
   subRegion1: string;
   subRegion2: string;
   date: Date;
-  retailAndRecreation: number;
-  groceryAndPharmacy: number;
-  parks: number;
-  transitStations: number;
-  workplace: number;
-  residential: number;
+  retailAndRecreation: number = 0;
+  groceryAndPharmacy: number = 0;
+  parks: number = 0;
+  transitStations: number = 0;
+  workplace: number = 0;
+  residential: number = 0;
   get average(): number {
-    return (this.retailAndRecreation + this.groceryAndPharmacy + this.parks + this.transitStations + this.workplace) / 5;
+    return (this.retailAndRecreation + this.groceryAndPharmacy + this.parks +
+      this.transitStations + this.workplace) / 5;
   }
 }
