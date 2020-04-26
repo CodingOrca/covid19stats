@@ -149,14 +149,15 @@ export class AppComponent implements OnInit, AfterViewInit{
         if(i > this.quarantinePeriod) {
           entry.assumedQuarantine -= countryHistory[i-this.quarantinePeriod].delta;
         }
-        let j = Math.min(this.daysForAverage,i);
-        for(let k = i-j; k < i; k++)
-        {
-          if(countryHistory[k].assumedInfectious > 0) {
-            let gDelta = countryHistory[k+1].cases - countryHistory[k].cases;
-            entry.infectionRate += 100 *  gDelta / countryHistory[k].assumedInfectious / j;
-          }
-        }
+        let j = Math.min(this.daysForAverage, i);
+        entry.infectionRate = 100 * this.calculateAverageReproRate(i, j, countryHistory);
+        // for(let k = i-j; k < i; k++)
+        // {
+        //   if(countryHistory[k].assumedInfectious > 0) {
+        //     let gDelta = countryHistory[k+1].cases - countryHistory[k].cases;
+        //     entry.infectionRate += 100 *  gDelta / countryHistory[k].assumedInfectious / j;
+        //   }
+        // }
       }
       //entry.reproductionNumber = Math.pow(1+entry.infectionRate/100, this.infectiousPeriod) - 1;
       entry.reproductionNumber = entry.infectionRate / 100 * this.infectiousPeriod;
@@ -164,6 +165,17 @@ export class AppComponent implements OnInit, AfterViewInit{
     }
   }
 
+  calculateAverageReproRate(n: number, m: number, hist: CaseData[]): number {
+    let a = 0;
+    let b = 0;
+    for (let i = n - m; i < n; i++) {
+      //if (hist[i].delta <= 0 || hist[i].assumedInfectious <= 0) continue;
+      b += (- 2 * hist[i + 1].delta * hist[i].assumedInfectious);
+      a += hist[i].assumedInfectious * hist[i].assumedInfectious;
+    }
+    if (a == 0 ) return 5;
+    return -b / (2 * a);
+  }
 
   private CalculateDoublingTime(hist: CaseData[], i: number): number {
     let base = hist[i - 1].cases;

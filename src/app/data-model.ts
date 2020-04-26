@@ -167,4 +167,7 @@ export class MobilityData {
   transitStations: number;
   workplace: number;
   residential: number;
+  get average(): number {
+    return (this.retailAndRecreation + this.groceryAndPharmacy + this.parks + this.transitStations + this.workplace) / 5;
+  }
 }

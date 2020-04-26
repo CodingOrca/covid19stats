@@ -166,7 +166,7 @@ export class GraphicsComponent implements OnInit {
   };
 
   mobilityColorScheme = {
-    domain: ['#669999', '#6666ff', '#66aa66', '#ff3366', '#ff9933', '#ff6699']
+    domain: ['#eeffff', '#eeeeff', '#eeffee', '#ffddee', '#ffeedd', '#000000']
   };
 
   maxCases: number = 1;
@@ -256,6 +256,7 @@ export class GraphicsComponent implements OnInit {
 
   private renderMobilityData() {
     this.currentMobilitySeries = new Array<DataSeries>();
+    let averageSeries = this.createSeries("average");
     let retailSeries = this.createSeries("retail & recreation");
     let grocerySeries = this.createSeries("grocery & pharmacies");
     let parksSeries = this.createSeries("parks");
@@ -267,11 +268,18 @@ export class GraphicsComponent implements OnInit {
     this.currentMobilitySeries.push(parksSeries);
     this.currentMobilitySeries.push(transitSeries);
     this.currentMobilitySeries.push(workplaceSeries);
+    this.currentMobilitySeries.push(averageSeries);
     //this.currentMobilitySeries.push(residentialSeries);
     for(let i = 0; i < this.mobilityData.length; i++) {
       let item = this.mobilityData[i];
       if(item.iso2 != this.currentCountry.iso2) continue;
-      if(item.subRegion1 || item.subRegion2) continue;
+      if (item.subRegion1 || item.subRegion2) continue;
+      let avg = 0;
+      let count = Math.min(6, i);
+      for (let k = i - count; k <= i; k++) {
+        avg += this.mobilityData[k].average / (count+1);
+      }
+      averageSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, avg));
       retailSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.retailAndRecreation));
       grocerySeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.groceryAndPharmacy));
       parksSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.parks));
