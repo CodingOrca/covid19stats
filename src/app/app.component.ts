@@ -94,13 +94,13 @@ export class AppComponent implements OnInit, AfterViewInit{
 
     // sort by cases:
     this.tableData = new MatTableDataSource(results.sort((x, y) => x.cases > y.cases ? -1 : 1));
+    this.tableData.sort = this.matSort;
+    this.tableData.sort.active = "cases";
     this.sharingService.setSelectedCountry(this.tableData.data.find( c=> c.country == this.settingsService.country));
   }
 
   ngAfterViewInit() {
     this.changeTabToIndex(this.settingsService.tabIndex);
-    this.tableData.sort = this.matSort;
-    this.tableData.sort.active = "cases";
     this.tableData._updateChangeSubscription();
   }
 

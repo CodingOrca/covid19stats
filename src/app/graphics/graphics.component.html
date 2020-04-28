@@ -5,8 +5,8 @@
     <mat-tab>
     <ng-template mat-tab-label>#</ng-template>
     <ng-template matTabContent>
-        <div class="chart" style="margin-bottom: 10px;">
-        <mat-grid-list cols="3" rowHeight="48px" style="margin: 0.5em;" >
+        <div class="chart">
+        <mat-grid-list cols="3" rowHeight="48px" style="margin: 0 0.5em 0 0.5em;" >
             <mat-grid-tile class="summary-tile">
             <div class="wrap-item">
                 <div class="vw-tiny">Total cases:</div>
@@ -73,10 +73,10 @@
             <div class="wrap-item">
                 <div class="vw-tiny with-subscript">R<sub>0</sub> estimation:</div>
                 <div class="vw-huge">
-                <span *ngIf="currentCountry.reproductionNumber > 1" 
+                <span *ngIf="currentCountry.reproductionNumber > 1.01" 
                     class="warn">{{currentCountry.reproductionNumber | number:'1.1-1' }}
                 </span>
-                <span *ngIf="currentCountry.reproductionNumber <= 1" 
+                <span *ngIf="currentCountry.reproductionNumber <= 1.01" 
                     class="green">{{currentCountry.reproductionNumber | number:'1.1-1' }}
                 </span>
                 <mat-icon [inline]=true *ngIf="currentCountry.reproductionNumberDelta > 0" class="warn">arrow_drop_up</mat-icon>
@@ -99,6 +99,9 @@
             </div>
             </mat-grid-tile>
         </mat-grid-list>
+        </div>
+        <div class="center">
+            Latest updated on {{currentCountry.updated | date}}
         </div>
     </ng-template>
     </mat-tab>
