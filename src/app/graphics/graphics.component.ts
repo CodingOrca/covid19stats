@@ -186,7 +186,7 @@ export class GraphicsComponent implements OnInit {
   }
 
   private async renderCountryHistory() {
-    let activeCases = this.createSeries("Active: reported - estimated");
+    let activeCases = this.createSeries("Active but assumed recovered");
     let infectiousCases = this.createSeries("Active infectious (estimated)");
     let quarantineCases = this.createSeries("Active in quarantine (estimated)");
     let deathCases = this.createSeries("Deaths");
