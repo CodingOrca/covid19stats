@@ -142,7 +142,7 @@ export class DataService {
     let content = await this.http.get('assets/Global_Mobility_Report.csv', {responseType: 'text'}).toPromise();
     let splits = content.toString().split('\n');
     for(let i = 1; i < splits.length; i++) {
-      let kv = splits[i].split(',');
+      let kv = splits[i].split(';');
       if(kv.length != 11) continue;
       let item = new MobilityData();
       item.iso2 = kv[0];

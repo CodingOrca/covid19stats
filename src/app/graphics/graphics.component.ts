@@ -166,7 +166,7 @@ export class GraphicsComponent implements OnInit {
   };
 
   mobilityColorScheme = {
-    domain: ['#eeffff', '#eeeeff', '#eeffee', '#ffddee', '#ffeedd', '#000000']
+    domain: ['#ddffff', '#ddddff', '#ddffdd', '#ffccdd', '#ffddcc', '#000000']
   };
 
   maxCases: number = 1;
