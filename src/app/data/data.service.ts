@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { YesterdayData, CountryInfo, CaseData, MobilityData} from '../data-model';
 @Injectable({
   providedIn: 'root'
@@ -12,7 +12,7 @@ export class DataService {
 
   async getYesterdaysWorldData(): Promise<YesterdayData>
   {
-    let caseData = await this.http.get<YesterdayData>("https://corona.lmao.ninja/v2/all").toPromise();
+    let caseData = await this.http.get<YesterdayData>("https://disease.sh/v2/all").toPromise();
     caseData.country = "World";
     caseData.countryInfo = new CountryInfo();
     caseData.countryInfo.flag = "assets/globe_PNG62.png"
@@ -21,7 +21,7 @@ export class DataService {
 
   async getLatestCountryData(): Promise<Array<CaseData>>
   {
-    var jhuCountries = await this.http.get<Array<JhuCountry>>("https://corona.lmao.ninja/v2/jhucsse").toPromise();
+    var jhuCountries = await this.http.get<Array<JhuCountry>>("https://disease.sh/v2/jhucsse").toPromise();
     let result = new Array<CaseData>();
     for(let jhuCountry of jhuCountries)
     {
@@ -37,7 +37,7 @@ export class DataService {
 
   async getHistoricalCountryData(countryName: string): Promise<Array<CaseData>>
   {
-    let history = await this.http.get<HistCountry>(`https://corona.lmao.ninja/v2/historical/${encodeURIComponent(countryName)}`).toPromise();
+    let history = await this.http.get<HistCountry>(`https://disease.sh/v2/historical/${encodeURIComponent(countryName)}`).toPromise();
     let result = new Array<CaseData>();
     let keys = Object.keys(history.timeline.cases);
 
@@ -58,12 +58,12 @@ export class DataService {
   }
 
   async getYesterdaysData(): Promise<YesterdayData[]> {
-    return await this.http.get<YesterdayData[]>("https://corona.lmao.ninja/v2/countries?yesterday=true").toPromise();
+    return await this.http.get<YesterdayData[]>("https://disease.sh/v2/countries?yesterday=true").toPromise();
   }
 
   async getAllHistoricalData(): Promise<Map<string,CaseData[]>>
   {
-    let allHistory = await this.http.get<HistCountry[]>(`https://corona.lmao.ninja/v2/historical?lastdays=all`).toPromise();
+    let allHistory = await this.http.get<HistCountry[]>(`https://disease.sh/v2/historical?lastdays=all`).toPromise();
     let result = new Map<string, CaseData[]>();
     for(let provinceHistory of allHistory)
     {
@@ -102,7 +102,7 @@ export class DataService {
 
   private async getHistoricalWorldData(): Promise<CaseData[]>
   {
-    let timeline = await this.http.get<HistTimeline>(`https://corona.lmao.ninja/v2/historical/All?lastdays=all`).toPromise();
+    let timeline = await this.http.get<HistTimeline>(`https://disease.sh/v2/historical/All?lastdays=all`).toPromise();
     let result = new Array<CaseData>();
     let keys = Object.keys(timeline.cases);
 
