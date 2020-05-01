@@ -19,7 +19,7 @@
      ({{100*currentCountry.cases/currentCountry.tests | number:"1.1-1"}}% of the tests). Their current state is:
     <ul>
         <li>{{currentCountry.recovered | number}} recovered and are now immune and not infectious anymore.</li>
-        <li> {{currentCountry.active | number}} are still active (meaning they are still infected and infectious),
+        <li> {{currentCountry.active | number}} are still active (meaning they are still infected, some of them infectious),
             {{currentCountry.critical | number}} of them in a critical situation<span class="small"><sup>1</sup></span></li>
         <li>{{currentCountry.deaths | number}} died<span class="small"><sup>2</sup></span></li>
     </ul>
@@ -63,6 +63,9 @@
     <h2>Data and Symbols</h2>
     Covid-19 case data are provided by <a href="https://systems.jhu.edu/" target="_blank">Johns Hopkins University</a> and retrieved with the APIs provided by 
     <a href="https://github.com/NovelCOVID" target="_blank">NovelCOVID</a>.<br>
+    It is important to keep in mind that the reported new cases reflect positive tests performed 
+    several days before being reported. Further more, the infection took place even some additional days before
+    the test.<br>
     For every day since the beginning of case reporting, we define the following indicators:
     <dl>
         <dt>&Delta;T - new cases; &Delta;R - new recovered; &Delta;D - new deaths.</dt>
@@ -83,9 +86,12 @@
     </dl>
     <h2>Math</h2>
     <p>
-    We are using a very simple but illustrative model to simulate what could happen in the future, based on the logistic equation.
+    We are using a very simple but illustrative model to simulate what could happen in the future, 
+    based on the logistic equation. In our model, we assume that patients tested positive will be isolated 
+    and cannot infect other peoples anymore. We assume that patients tested positive, before being tested,
+    where infectious about 5 days before being isolated. 
     </p>
-    <h3>Reproduction rate and number</h3>
+    <h3>Basic reproduction rate and number: r<sub>0</sub> and R<sub>0</sub></h3>
     <p>
         Let us assume that an infected person, on average, 
         is encountering every day a number &rho; of other persons.
@@ -94,7 +100,7 @@
         or the infected person is sneezing while they meet etc.).
     </p>
     <p>
-        <b>Definition:</b>The reproduction rate r<sub>0</sub> is the number of new infections
+        <b>Definition:</b>The basic reproduction rate r<sub>0</sub> is the number of new infections
         caused directly by an infected person during one day, if all other persons around him are susceptible: 
         r<sub>0</sub>= &rho; &times; &phi;
     </p>
@@ -125,12 +131,13 @@
         infected. We use the value of 14 days in our calculations.
     </p>
     <p>
-        <b>Definition:</b> The <b>reproduction number R<sub>0</sub></b> is the number of persons directly infected
+        <b>Definition:</b> The <b>basic reproduction number R<sub>0</sub></b> is the number of persons directly infected
           by an infected person during his infection period.
     </p>
     <p class="center">
         R<sub>0</sub> = r<sub>0</sub> &times; &tau;
     </p>
+    <h3>Effective reproduction rate and number: r<sub>t</sub> and R<sub>t</sub></h3>
     <p> 
         Both r<sub>0</sub> and R<sub>0</sub> are defined under ideal conditions: it is assumed that 
         all other persons are susceptible. This is the case in the beginning of an epidemy, when the number of
@@ -142,7 +149,17 @@
         persons is S = P - A - R, and the probability for our imaginary infected person to encounter a 
         susceptible person is s = S / P. The probability s will decrease from 1 towards 0 during an epidemy (we will see later that 
         often it will not reach 0).<br>
-        If we consider the number of persons who die, D, the population will decrease over time, and on day n+1 we can write:
+    </p>
+    <p><b>Definition:</b>The effective reproduction rate r<sub>t</sub> and the effective reproduction number 
+        R<sub>t</sub> are defined as:
+    </p>
+    <p class="center">
+        r<sub>t</sub> = r<sub>0</sub> &times; s<br>
+        T<sub>t</sub> = R<sub>0</sub> &times; s<br>
+    </p>
+    <p>
+        If we consider the number of persons who die, D, the population will decrease over time, 
+        and on day n+1 we can write:
         The newly infected persons on day n can be written as:
     </p>
     <p class="center">

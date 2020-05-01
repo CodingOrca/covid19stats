@@ -15,6 +15,7 @@ export class CaseData {
   }
 
   delta: number;
+  correctedDelta: number;
   reproductionNumber: number;
   infectionRate: number = 0;
   
@@ -30,6 +31,7 @@ export class CaseData {
     this.assumedQuarantine = c.assumedQuarantine;
     this.assumedInfectious = c.assumedInfectious;
     this.delta = c.delta;
+    this.correctedDelta = c.correctedDelta;
     this.reproductionNumber = c.reproductionNumber;
     this.infectionRate = c.infectionRate;
     this.mobilityChange = c.mobilityChange;

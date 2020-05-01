@@ -123,18 +123,18 @@ export class InfoDialog implements OnInit {
                 h.deaths = this.simulationHistory[i].deaths;
             }
             h.updated = new Date(Number(startDate) + i * 1000 * 60 * 60 * 24)
-            h.delta = r * this.simulationHistory[i - 1].assumedInfectious * (population - this.simulationHistory[i - 1].active - this.simulationHistory[i - 1].recovered) / population;
-            if (h.delta < 0) h.delta = 0;
-            h.assumedInfectious = this.simulationHistory[i - 1].assumedInfectious + h.delta;
+            h.correctedDelta = r * this.simulationHistory[i - 1].assumedInfectious * (population - this.simulationHistory[i - 1].active - this.simulationHistory[i - 1].recovered) / population;
+            if (h.correctedDelta < 0) h.correctedDelta = 0;
+            h.assumedInfectious = this.simulationHistory[i - 1].assumedInfectious + h.correctedDelta;
             h.assumedQuarantine = this.simulationHistory[i - 1].assumedQuarantine;
             h.recovered = this.simulationHistory[i - 1].recovered;
             if (i >= this.infectionPeriod) {
-                h.assumedInfectious -= this.simulationHistory[i - this.infectionPeriod].delta;
-                h.assumedQuarantine += this.simulationHistory[i - this.infectionPeriod].delta;
+                h.assumedInfectious -= this.simulationHistory[i - this.infectionPeriod].correctedDelta;
+                h.assumedQuarantine += this.simulationHistory[i - this.infectionPeriod].correctedDelta;
             }
             if (i >= this.activePeriod) {
-                h.assumedQuarantine -= this.simulationHistory[i - this.activePeriod].delta;
-                h.recovered += this.simulationHistory[i - this.activePeriod].delta;;
+                h.assumedQuarantine -= this.simulationHistory[i - this.activePeriod].correctedDelta;
+                h.recovered += this.simulationHistory[i - this.activePeriod].correctedDelta;;
             }
             h.cases = h.assumedInfectious + h.assumedQuarantine + h.recovered + h.deaths;
             if (i >= startIndex)
@@ -223,14 +223,14 @@ export class InfoDialog implements OnInit {
             let h = new CaseData();
             h.updated = new Date(Number(startDate) + i * 1000 * 60 * 60 * 24)
             h.deaths = 0;
-            h.delta = r * this.simulationHistory[i-1].active * 
+            h.correctedDelta = r * this.simulationHistory[i-1].active * 
                 (population - this.simulationHistory[i-1].active - 
                     this.simulationHistory[i-1].recovered) / population;
-            if(h.delta < 0) h.delta = 0;
-            h.cases = this.simulationHistory[i-1].cases + h.delta;
+            if (h.correctedDelta < 0) h.correctedDelta = 0;
+            h.cases = this.simulationHistory[i - 1].cases + h.correctedDelta;
             h.recovered = this.simulationHistory[i-1].recovered;
             if(i >= t) {
-                h.recovered += this.simulationHistory[i-t].delta;
+                h.recovered += this.simulationHistory[i - t].correctedDelta;
             }
             this.simulationHistory.push(h);
 
@@ -282,12 +282,12 @@ export class InfoDialog implements OnInit {
         for(let i = 1; i <= t; i++) {
             let h = new CaseData();
             h.deaths = 0;
-            h.delta = r * forecasts[i-1].active * (population - forecasts[i-1].active - forecasts[i-1].recovered) / population;
-            if(h.delta < 0) h.delta = 0;
-            h.cases = forecasts[i-1].cases + h.delta;
+            h.correctedDelta = r * forecasts[i-1].active * (population - forecasts[i-1].active - forecasts[i-1].recovered) / population;
+            if (h.correctedDelta < 0) h.correctedDelta = 0;
+            h.cases = forecasts[i - 1].cases + h.correctedDelta;
             h.recovered = forecasts[i-1].recovered;
             if(hi + i - t >= 0) {
-                h.recovered += hist[hi + i - t].delta;
+                h.recovered += hist[hi + i - t].correctedDelta;
             }
             forecasts.push(h);
             if(h.active > max) max = h.active;

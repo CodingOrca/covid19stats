@@ -133,29 +133,58 @@ export class AppComponent implements OnInit, AfterViewInit{
   }
 
   calculateDeltaAndCo(countryDetails: YesterdayData, countryHistory: CaseData[]) {
-    let i: number = 0;
-    for (let entry of countryHistory) {
-      entry.delta = 0;
+    for (let i = 0; i < countryHistory.length; i++) {
+      let entry = countryHistory[i];
+      entry.correctedDelta = entry.delta = 0;
       entry.infectionRate = 0;
       entry.assumedInfectious = 0;
       entry.assumedQuarantine = 0;
+      if (i > 0) {
+        entry.delta = entry.cases - countryHistory[i - 1].cases;
+        this.calculateDeltaCorrectionFactor(i, countryHistory);
+      }
+    }
+
+    for (let i = 0; i < countryHistory.length; i++) {
+      let entry = countryHistory[i];
       if(i > 0)
       {
-        entry.delta = entry.cases - countryHistory[i-1].cases;
-        entry.assumedInfectious += entry.delta + countryHistory[i-1].assumedInfectious;
-        entry.assumedQuarantine = countryHistory[i-1].assumedQuarantine
-        if(i > this.infectiousPeriod) {
-          entry.assumedInfectious -= countryHistory[i-this.infectiousPeriod].delta;
-          entry.assumedQuarantine += countryHistory[i-this.infectiousPeriod].delta;
+        entry.assumedInfectious = countryHistory[i - 1].assumedInfectious;
+        entry.assumedQuarantine = countryHistory[i - 1].assumedQuarantine
+        entry.assumedInfectious += entry.correctedDelta;
+        if (i > this.infectiousPeriod) {
+          entry.assumedInfectious -= countryHistory[i - this.infectiousPeriod].correctedDelta;
+          entry.assumedQuarantine += countryHistory[i - this.infectiousPeriod].correctedDelta;
         }
-        if(i > this.quarantinePeriod) {
-          entry.assumedQuarantine -= countryHistory[i-this.quarantinePeriod].delta;
+        if (i > this.quarantinePeriod) {
+          entry.assumedQuarantine -= countryHistory[i - this.quarantinePeriod].correctedDelta;
         }
         let j = Math.min(this.daysForAverage, i);
         entry.infectionRate = 100 * this.calculateAverageReproRate(i, j, countryHistory);
       }
       entry.reproductionNumber = entry.infectionRate / 100 * this.infectiousPeriod;
-      i++;
+    }
+  }
+
+  // if delta for n is negative, the correction of cases is distributed across the previous
+  // 'quarantinePeriod', with a quantity proportional to the delta of that day, so that
+  // the negative delta of this day is corrected to 0.
+  calculateDeltaCorrectionFactor(n: number, h: CaseData[]): number {
+    if (h[n].delta >= 0)
+    {
+      h[n].correctedDelta = h[n].delta;
+      return;
+    }
+    h[n].correctedDelta = 0;
+    let positives = 0;
+    let start = Math.max(0, n - this.quarantinePeriod);
+    for (let i = start; i < n; i++) {
+      positives += h[i].correctedDelta;
+    }
+    if (positives <= 0) return;
+    let factor = (positives + h[n].delta) / positives;
+    for (let i = start; i < n; i++) {
+      h[i].correctedDelta *= factor;
     }
   }
 
@@ -163,11 +192,10 @@ export class AppComponent implements OnInit, AfterViewInit{
     let a = 0;
     let b = 0;
     for (let i = n - m; i < n; i++) {
-      //if (hist[i].delta <= 0 || hist[i].assumedInfectious <= 0) continue;
-      b += (- 2 * hist[i + 1].delta * hist[i].assumedInfectious);
+      b += (- 2 * hist[i + 1].correctedDelta * hist[i].assumedInfectious);
       a += hist[i].assumedInfectious * hist[i].assumedInfectious;
     }
-    if (a == 0 ) return 5;
+    if (a == 0 ) return 0;
     return -b / (2 * a);
   }
 
