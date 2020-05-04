@@ -29,7 +29,7 @@ export class AppComponent implements OnInit, AfterViewInit{
   title = 'COVID-19 cases - figures and plots';
   today: Date = new Date();
 
-  displayedColumns: string[] = ['country', 'cases', 'active', 'critical', 'deaths'];
+  displayedColumns: string[];
   tableData: MatTableDataSource<SummaryViewData> = new MatTableDataSource();
   allHistoricalData: Map<string, CaseData[]> = new Map<string, CaseData[]>();
 
@@ -42,12 +42,17 @@ export class AppComponent implements OnInit, AfterViewInit{
     private sharingService: SharingService,
     private dataService: DataService)
   {
-    sharingService.mobilityData.subscribe(newData => this.currentMobilityData = newData);
+    sharingService.mobilityData.subscribe(newData => {
+      if (newData != null) this.currentMobilityData = newData
+      else this.currentMobilityData = new Array<MobilityData>();
+    });
+    
     this.sharingService.selectedCountry.subscribe(c => {
       this.currentCountry = c;
       this.tableData.filter = "";
       this.tableData._updateChangeSubscription();
-      this.currentHistory = this.allHistoricalData.get(c.country);
+      if (c != null) this.currentHistory = this.allHistoricalData.get(c.country);
+      else this.currentHistory = new Array<CaseData>();
     });
   }
 
@@ -96,12 +101,10 @@ export class AppComponent implements OnInit, AfterViewInit{
     this.tableData = new MatTableDataSource(results.sort((x, y) => x.cases > y.cases ? -1 : 1));
     this.tableData.sort = this.matSort;
     this.tableData.sort.active = "cases";
-    this.sharingService.setSelectedCountry(this.tableData.data.find( c=> c.country == this.settingsService.country));
-  }
-
-  ngAfterViewInit() {
+    let cc = this.tableData.data.find(c => c.country == this.settingsService.country);
+    if (cc == null && this.tableData.data.length > 0) cc = this.tableData.data[0];
+    this.sharingService.setSelectedCountry(cc);
     this.changeTabToIndex(this.settingsService.tabIndex);
-    this.tableData._updateChangeSubscription();
   }
 
   private CreateSummaryViewData(countryDetails: YesterdayData, countryHistory: CaseData[]) {

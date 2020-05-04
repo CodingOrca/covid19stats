@@ -12,11 +12,16 @@ export class SharingService {
   selectedCountry = this.mySelectedCountry.asObservable();
   setSelectedCountry(country: SummaryViewData) {
     this.mySelectedCountry.next(country);
-    if(country != null) {
+    if (country != null) {
       this.settings.country = country.country;
+      let data = this._allMobilityData.filter(m => m.iso2 == this.mySelectedCountry.value.iso2 && !m.subRegion2 && !m.subRegion1);
+      this.mobilityDataBS.next(data);
     }
-    let data = this._allMobilityData.filter(m => m.iso2 == this.mySelectedCountry.value.iso2 && !m.subRegion2 && !m.subRegion1);
-    this.mobilityDataBS.next(data);
+    else
+    {
+      this.settings.country = null;
+      this.mobilityDataBS.next(new Array<MobilityData>());
+      }
   
   }
 
@@ -29,10 +34,13 @@ export class SharingService {
   mobilityData = this.mobilityDataBS.asObservable();
   async loadMobilityData() {
     this._allMobilityData = await this.dataService.getMobilityData();
-    let data = this._allMobilityData.filter(m => m.iso2 == this.mySelectedCountry.value.iso2 && !m.subRegion2 && !m.subRegion1);
-    this.mobilityDataBS.next(data);
+    if (this.mySelectedCountry != null) {
+      let data = this._allMobilityData.filter(
+        m => m.iso2 == this.mySelectedCountry.value.iso2 && !m.subRegion2 && !m.subRegion1);
+      this.mobilityDataBS.next(data);
+    }
   }
 
-  constructor(private settings: SettingsService, private dataService: DataService) { 
+  constructor(private settings: SettingsService, private dataService: DataService) {
   }
 }
