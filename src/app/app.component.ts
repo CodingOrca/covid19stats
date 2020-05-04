@@ -15,7 +15,7 @@ import { GraphicsComponent } from './graphics/graphics.component';
   styleUrls: ['./app.component.scss']
 })
 
-export class AppComponent implements OnInit, AfterViewInit{
+export class AppComponent implements OnInit {
 
   currentCountry: SummaryViewData = new SummaryViewData();
   currentHistory: CaseData[] = new Array<CaseData>();
