@@ -128,12 +128,12 @@ export class SummaryViewData extends CaseData {
   flag: string;
   iso2: string;
 
-  recoveredDelta: Tendency;
-  deathsDelta: Tendency;
-  activeDelta: Tendency;
+  recoveredDelta: number;
+  deathsDelta: number;
+  activeDelta: number;
   deltaDelta: number;
-  infectionRateDelta: Tendency;
-  reproductionNumberDelta: Tendency;
+  infectionRateDelta: number;
+  reproductionNumberDelta: number;
 
   mortalityRate: number;
 
@@ -144,11 +144,6 @@ export class SummaryViewData extends CaseData {
   get mortalityRatePerDay(): number {
     return Math.round(this.mortalityRate / 365);    
   }
-}
-  
-  // icons: arrow_drop_up, _drop_down or _left or _right
-export enum Tendency {
-  up, down, unchanged
 }
 
 export class DataSeries {

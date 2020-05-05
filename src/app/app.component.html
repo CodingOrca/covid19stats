@@ -1,11 +1,10 @@
 <div class="host">
-  <app-toolbar [currentCountry]="currentCountry" [currentHistory]="currentHistory">
+  <app-toolbar>
   </app-toolbar>
-  <app-graphics [currentCountry]="currentCountry" [currentHistory]="currentHistory"
-    (selectedTabIndexChange)="selectedTabIndex=$event">
+  <app-graphics>
   </app-graphics>
   <div class="content" fxLayout="column">
-    <mat-table [dataSource]="tableData" class="full-width mat-elevation-z8" matSort matSortStart="desc">
+    <mat-table [dataSource]="table" class="full-width mat-elevation-z8" matSort matSortStart="desc">
       <ng-container matColumnDef="country">
         <mat-header-cell *matHeaderCellDef mat-sort-header start="asc">Country </mat-header-cell>
         <mat-cell *matCellDef="let element">
@@ -13,62 +12,62 @@
       </ng-container>
 
       <ng-container matColumnDef="cases">
-        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell" arrowPosition="before"> T </mat-header-cell>>
+        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell"> T </mat-header-cell>>
         <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.cases}}</mat-cell>>
       </ng-container>
 
       <ng-container matColumnDef="delta">
-        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell active-color" arrowPosition="before"> &Delta;T </mat-header-cell>>
+        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell active-color"> &Delta;T </mat-header-cell>>
         <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.delta}}</mat-cell>>
       </ng-container>
 
       <ng-container matColumnDef="active">
-        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell warn active-color" arrowPosition="before"> A </mat-header-cell>>
+        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell warn active-color"> A </mat-header-cell>>
         <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.active}}</mat-cell>>
       </ng-container>
 
       <ng-container matColumnDef="recovered">
-        <mat-header-cell *matHeaderCellDef class="align-right-cell recovered-color" mat-sort-header arrowPosition="before"> R </mat-header-cell>>
+        <mat-header-cell *matHeaderCellDef class="align-right-cell recovered-color" mat-sort-header> R </mat-header-cell>>
         <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.recovered}} </mat-cell>>
       </ng-container>
 
       <ng-container matColumnDef="deaths">
-        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell deaths-color" arrowPosition="before"> D </mat-header-cell>>
+        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell deaths-color"> D </mat-header-cell>>
         <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.deaths}}</mat-cell>>
       </ng-container>
 
       <ng-container matColumnDef="activeDelta">
-        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell active-color" arrowPosition="before"> &Delta;A </mat-header-cell>>
+        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell active-color"> &Delta;A </mat-header-cell>>
         <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.activeDelta}}</mat-cell>>
       </ng-container>
 
       <ng-container matColumnDef="recoveredDelta">
-        <mat-header-cell *matHeaderCellDef class="align-right-cell recovered-color" mat-sort-header arrowPosition="before"> &Delta;R </mat-header-cell>>
+        <mat-header-cell *matHeaderCellDef class="align-right-cell recovered-color" mat-sort-header> &Delta;R </mat-header-cell>>
         <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.recoveredDelta}} </mat-cell>>
       </ng-container>
 
       <ng-container matColumnDef="deathsDelta">
-        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell deaths-color" arrowPosition="before"> &Delta;D </mat-header-cell>>
+        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell deaths-color"> &Delta;D </mat-header-cell>>
         <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.deathsDelta}}</mat-cell>>
       </ng-container>
 
       <ng-container matColumnDef="critical">
-        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell active-color" arrowPosition="before"> C </mat-header-cell>>
+        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell active-color"> C </mat-header-cell>>
         <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.critical}}</mat-cell>>
       </ng-container>
 
       <ng-container matColumnDef="infectionRate">
-        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell" arrowPosition="before"> <div style="margin-bottom: -4px;">r<sub>0</sub></div> </mat-header-cell>>
+        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell"> <div style="margin-bottom: -4px;">r<sub>0</sub></div> </mat-header-cell>>
         <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.infectionRate | number:'1.1-1'}}%</mat-cell>>
       </ng-container>
 
       <ng-container matColumnDef="reproductionNumber">
-        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell" arrowPosition="before"> <div style="margin-bottom: -4px;">R<sub>0</sub></div> </mat-header-cell>>
+        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell"> <div style="margin-bottom: -4px;">R<sub>0</sub></div> </mat-header-cell>>
         <mat-cell *matCellDef="let element" class="align-right-cell"> {{element.reproductionNumber | number:'1.1-1'}}</mat-cell>>
       </ng-container>
 
       <ng-container matColumnDef="mobilityChange">
-        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell" arrowPosition="before"> M </mat-header-cell>>
+        <mat-header-cell *matHeaderCellDef mat-sort-header class="align-right-cell"> M </mat-header-cell>>
         <mat-cell *matCellDef="let element" class="align-right-cell"> 
           <span *ngIf="element.mobilityChange"> {{element.mobilityChange | number:'1.0-0'}}%</span>
           <span *ngIf="!element.mobilityChange"> - - - - </span>

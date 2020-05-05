@@ -10,28 +10,9 @@ import { SharingService } from '../sharing/sharing.service';
 })
 export class GraphicsComponent implements OnInit {
   
-  myCurrentCountry: SummaryViewData
-  get currentCountry(): SummaryViewData {
-    return this.myCurrentCountry;
-  };
+  currentCountry: SummaryViewData;
 
-  @Input() set currentCountry(value: SummaryViewData) {
-    this.myCurrentCountry = value;
-    this.renderCountryHistory();
-    this.renderMobilityData();
-  }
-
-  myCurrentHistory: CaseData[] = new Array<CaseData>();
-  get currentHistory(): CaseData[] {
-    return this.myCurrentHistory;
-  }
-
-  @Input() set currentHistory(history: CaseData[])
-  {
-    this.myCurrentHistory = history;
-    this.renderCountryHistory();
-    this.renderMobilityData();
-  }
+  currentHistory: CaseData[] = new Array<CaseData>();
 
   xTimeScaleMin: Date = new Date(Date.now() - 48 * 1000 * 60 * 60 * 24);
   xTimeScaleMax: Date = new Date(Date.now() - 1 * 1000 * 60 * 60 * 24);
@@ -175,14 +156,23 @@ export class GraphicsComponent implements OnInit {
   mobilityData: MobilityData[] = new Array<MobilityData>();  
 
   constructor(private settingsService: SettingsService, private sharingService: SharingService) { 
+    settingsService.tabIndex.subscribe(i => this._selectedTabIndex = i);
   }
 
   ngOnInit(): void {
     this.maxCases = 1;
     this.maxDelta = 10000;
-    this.sharingService.mobilityData.subscribe(
-      newData => this.mobilityData = newData
-    );
+    this.sharingService.mobilityData.subscribe(m => {
+      this.mobilityData = m;
+      this.renderMobilityData();
+    });
+    this.sharingService.selectedCountry.subscribe(c => {
+      this.currentCountry = c;
+    });
+    this.sharingService.currentHistory.subscribe(h => {
+      this.currentHistory = h;
+      this.renderCountryHistory();
+    })
   }
 
   private async renderCountryHistory() {
@@ -272,7 +262,7 @@ export class GraphicsComponent implements OnInit {
     //this.currentMobilitySeries.push(residentialSeries);
     for (let i = 0; i < this.mobilityData.length; i++) {
       let item = this.mobilityData[i];
-      let avg = GraphicsComponent.calculateAverageMobility(i, 7, this.mobilityData);
+      let avg = SharingService.calculateAverageMobility(i, 7, this.mobilityData);
       averageSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, avg));
       retailSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.retailAndRecreation));
       grocerySeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.groceryAndPharmacy));
@@ -281,15 +271,6 @@ export class GraphicsComponent implements OnInit {
       workplaceSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.workplace));
       //residentialSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.residential));
     }
-  }
-
-  public static calculateAverageMobility(i: number, averagePeriod: number, hist: MobilityData[]) {
-    let avg = 0;
-    let count = Math.min(averagePeriod-1, i);
-    for (let k = i - count; k <= i; k++) {
-      avg += hist[k].average / (count + 1);
-    }
-    return avg;
   }
 
   private createSeries(name: string): DataSeries {
@@ -310,15 +291,13 @@ export class GraphicsComponent implements OnInit {
     console.log(event);
   }
 
-  @Output() selectedTabIndexChange = new EventEmitter();
-
-  get selectedTabIndex() {
-    return this.settingsService.tabIndex;
+  private _selectedTabIndex: number = 0;
+  get selectedTabIndex(): number {
+    return this._selectedTabIndex;
   }
 
   set selectedTabIndex(index: number) {
-    this.settingsService.tabIndex = index;
-    this.selectedTabIndexChange.emit(this.selectedTabIndex);
+    this.settingsService.setTabIndex(index);
   }
 
 }

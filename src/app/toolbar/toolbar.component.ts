@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { SummaryViewData, CaseData } from '../data-model';
 import { MatDialog } from '@angular/material/dialog';
 import { InfoDialog } from '../info-dialog';
+import { SharingService } from '../sharing/sharing.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -10,12 +11,14 @@ import { InfoDialog } from '../info-dialog';
 })
 export class ToolbarComponent implements OnInit {
 
-  @Input() currentCountry: SummaryViewData;
-  @Input() currentHistory: CaseData[];
+  currentCountry: SummaryViewData;
+  currentHistory: CaseData[];
 
-  constructor(public dialog: MatDialog) { }
+  constructor(public dialog: MatDialog, private sharingService: SharingService) { }
 
   ngOnInit(): void {
+    this.sharingService.selectedCountry.subscribe(c => this.currentCountry = c);
+    this.sharingService.currentHistory.subscribe(h => this.currentHistory = h);
   }
 
   openGitHub()
