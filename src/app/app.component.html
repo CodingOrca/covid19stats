@@ -5,7 +5,7 @@
   </app-graphics>
   <div class="content" fxLayout="column">
     <mat-table [dataSource]="table" class="full-width mat-elevation-z8" matSort matSortStart="desc">
-      <ng-container matColumnDef="country">
+      <ng-container matColumnDef="country" sticky>
         <mat-header-cell *matHeaderCellDef mat-sort-header start="asc">Country </mat-header-cell>
         <mat-cell *matCellDef="let element">
           <img class="small-icon" src={{element.flag}}/> {{element.country}} </mat-cell>
