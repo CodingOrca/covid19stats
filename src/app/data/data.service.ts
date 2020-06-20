@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { YesterdayData, CountryInfo, CaseData, MobilityData} from '../data-model';
+import { fadeInItems } from '@angular/material/menu';
 @Injectable({
   providedIn: 'root'
 })
@@ -140,22 +141,24 @@ export class DataService {
   public async getMobilityData(): Promise<MobilityData[]> {
     let result = new Array<MobilityData>();
     let content = await this.http.get('assets/Global_Mobility_Report.csv', {responseType: 'text'}).toPromise();
-    let splits = content.toString().split('\n');
-    for(let i = 1; i < splits.length; i++) {
-      let kv = splits[i].split(';');
-      if(kv.length != 11) continue;
+    let lines = content.toString().split('\n');
+    for(let i = 1; i < lines.length; i++) {
+      let columns = lines[i].split(';');
+      if(columns.length != 13) continue;
       let item = new MobilityData();
-      item.iso2 = kv[0];
-      item.region = kv[1];
-      item.subRegion1 = kv[2];
-      item.subRegion2 = kv[3];
-      item.date = new Date(kv[4]);
-      item.retailAndRecreation = Number.parseInt(kv[5]);
-      item.groceryAndPharmacy = Number.parseInt(kv[6]);
-      item.parks = Number.parseInt(kv[7]);
-      item.transitStations = Number.parseInt(kv[8]);
-      item.workplace = Number.parseInt(kv[9]);
-      item.residential = Number.parseInt(kv[10]);
+      item.iso2 = columns[0];
+      item.region = columns[1];
+      item.subRegion1 = columns[2];
+      item.subRegion2 = columns[3];
+      item.iso_3166_2_code = columns[4];
+      item.census_fips_code = columns[5];
+      item.date = new Date(columns[6]);
+      item.retailAndRecreation = Number.parseInt(columns[7]);
+      item.groceryAndPharmacy = Number.parseInt(columns[8]);
+      item.parks = Number.parseInt(columns[9]);
+      item.transitStations = Number.parseInt(columns[10]);
+      item.workplace = Number.parseInt(columns[11]);
+      item.residential = Number.parseInt(columns[12]);
       result.push(item);
     }
     return result;

@@ -161,6 +161,8 @@ export class MobilityData {
   region: string;
   subRegion1: string;
   subRegion2: string;
+  iso_3166_2_code: string;
+  census_fips_code: string;
   date: Date;
   retailAndRecreation: number = 0;
   groceryAndPharmacy: number = 0;
