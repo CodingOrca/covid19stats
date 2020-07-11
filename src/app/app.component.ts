@@ -58,10 +58,10 @@ export class AppComponent implements OnInit {
         this.displayedColumns = ['country', 'cases', 'delta', 'deaths', 'reproductionNumber'];
         break;
       case 1:
-        this.displayedColumns = ['country', 'cases', 'active', 'recovered', 'deaths'];
+        this.displayedColumns = ['country', 'cases', 'delta', 'deaths', 'deathsDelta'];
         break;
       case 2:
-        this.displayedColumns = ['country', 'delta', 'recoveredDelta', 'deathsDelta', 'reproductionNumber'];
+        this.displayedColumns = ['country', 'cases', 'delta', 'deathsDelta', 'reproductionNumber'];
         break;
       case 3:
         this.displayedColumns = ['country', 'delta', 'activeDelta', 'mobilityChange', 'reproductionNumber'];
