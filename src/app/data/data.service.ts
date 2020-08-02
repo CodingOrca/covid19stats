@@ -142,23 +142,24 @@ export class DataService {
     let result = new Array<MobilityData>();
     let content = await this.http.get('assets/Global_Mobility_Report.csv', {responseType: 'text'}).toPromise();
     let lines = content.toString().split('\n');
-    for(let i = 1; i < lines.length; i++) {
+    for (let i = 1; i < lines.length; i++) {
       let columns = lines[i].split(';');
-      if(columns.length != 13) continue;
+      if (columns.length != 14) continue;
       let item = new MobilityData();
       item.iso2 = columns[0];
       item.region = columns[1];
       item.subRegion1 = columns[2];
       item.subRegion2 = columns[3];
-      item.iso_3166_2_code = columns[4];
-      item.census_fips_code = columns[5];
-      item.date = new Date(columns[6]);
-      item.retailAndRecreation = Number.parseInt(columns[7]);
-      item.groceryAndPharmacy = Number.parseInt(columns[8]);
-      item.parks = Number.parseInt(columns[9]);
-      item.transitStations = Number.parseInt(columns[10]);
-      item.workplace = Number.parseInt(columns[11]);
-      item.residential = Number.parseInt(columns[12]);
+      item.metroArea = columns[4];
+      item.iso_3166_2_code = columns[5];
+      item.census_fips_code = columns[6];
+      item.date = new Date(columns[7]);
+      item.retailAndRecreation = Number.parseInt(columns[8]);
+      item.groceryAndPharmacy = Number.parseInt(columns[9]);
+      item.parks = Number.parseInt(columns[10]);
+      item.transitStations = Number.parseInt(columns[11]);
+      item.workplace = Number.parseInt(columns[12]);
+      item.residential = Number.parseInt(columns[13]);
       result.push(item);
     }
     return result;
