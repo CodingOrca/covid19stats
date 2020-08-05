@@ -59,7 +59,7 @@ export class DataService {
   }
 
   async getYesterdaysData(): Promise<YesterdayData[]> {
-    return await this.http.get<YesterdayData[]>("https://disease.sh/v2/countries?yesterday=true").toPromise();
+    return await this.http.get<YesterdayData[]>("https://disease.sh/v2/countries").toPromise();
   }
 
   async getAllHistoricalData(): Promise<Map<string,CaseData[]>>
