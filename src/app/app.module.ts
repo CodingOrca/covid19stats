@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'
+import { CacheInterceptor } from './data/cache-interceptor.service';
 
 import {NgModule} from '@angular/core';
 import {A11yModule} from '@angular/cdk/a11y';
@@ -54,7 +55,6 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { InfoDialog } from './info-dialog';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { GraphicsComponent } from './graphics/graphics.component';
-
 
 @NgModule({
   declarations: [
@@ -114,7 +114,7 @@ import { GraphicsComponent } from './graphics/graphics.component';
     FormsModule,
     NgxChartsModule,
   ],
-  providers: [],  
+  providers: [{ provide: HTTP_INTERCEPTORS, useClass: CacheInterceptor, multi: true }],  
   entryComponents: [InfoDialog],
   bootstrap: [AppComponent]
 })
