@@ -140,7 +140,7 @@ export class DataService {
 
   public async getMobilityData(): Promise<MobilityData[]> {
     let result = new Array<MobilityData>();
-    let content = await this.http.get('assets/Global_Mobility_Report.csv', {responseType: 'text'}).toPromise();
+    let content = await this.http.get('https://coronaservice.blob.core.windows.net/mobilitydata/Global_Mobility_Report.csv', {responseType: 'text'}).toPromise();
     let lines = content.toString().split('\n');
     for (let i = 1; i < lines.length; i++) {
       let columns = lines[i].split(';');
