@@ -138,29 +138,26 @@
     <ng-template mat-tab-label>&Delta;</ng-template>
     <ng-template matTabContent>
         <div class="chart">
-        <ngx-charts-bar-vertical-stacked
+        <ngx-charts-area-chart
             [scheme]="deltaColorScheme"
             [legend]="legend"
-            [barPadding]=1
-            [roundDomains]=true
             [legendPosition]="legendPosition"
-            [showXAxisLabel]=false
-            [showYAxisLabel]="showYAxisLabel"
+            [showXAxisLabel]="false"
             [xAxis]="xAxis"
             [yAxis]="yAxis"
-            [xAxisLabel]="'New: Cases (+) &nbsp; Deaths (-)'"
-            [yAxisLabel]="gAxisLabel"
+            [xAxisLabel]="'Total cases: T=A+R+D over time'"
+            [yAxisTickFormatting]="yAxisTickFormattingFn"
             [xAxisTicks]="deltaTimeTicks"
             [xAxisTickFormatting]="dateAxisTickFormattingFn"
-            [yAxisTickFormatting]="yAxisTickFormattingFn"
+            [xScaleMin]="xTimeScaleMin"
             [results]="currentDeltaSeries"
+            [timeline]="timeline"
             (select)="onSelect($event)">
-        </ngx-charts-bar-vertical-stacked>
+        </ngx-charts-area-chart>
         </div>
         <div class="center">
-        <span class="active-color"> new cases (+)</span>, 
-        <span class="recovered-color">new recovered (-)</span>,
-        <span class="deaths-color">new deaths (-)</span>
+        <span class="active-color"> new cases</span>, 
+        <span class="deaths-color">new deaths</span>
         </div>
     </ng-template>
     </mat-tab>

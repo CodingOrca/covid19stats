@@ -14,8 +14,8 @@ export class GraphicsComponent implements OnInit {
 
   currentHistory: CaseData[] = new Array<CaseData>();
 
-  xTimeScaleMin: Date = new Date("2020-02-22");
-  // xTimeScaleMin: Date = new Date(Date.now() - 48 * 1000 * 60 * 60 * 24);
+  xTimeScaleMin: Date = new Date("2020-01-22");
+  // xTimeScaleMin: Date = new Date(Date.now() - 45 * 1000 * 60 * 60 * 24);
   xTimeScaleMax: Date = new Date(Date.now() - 1 * 1000 * 60 * 60 * 24);
   currentCasesSeries: Array<DataSeries>;
   currentReproductionSeries: Array<DataSeries>;
@@ -119,10 +119,11 @@ export class GraphicsComponent implements OnInit {
   deltaTimeTicks: Array<Date> = [new Date(2020, 0, 22), new Date()];
   private setDeltaTimeTicks() {
     this.deltaTimeTicks = new Array<Date>();
-    for (let i = 0; i < this.currentDeltaSeries.length; i++) {
-      let date = new Date(this.currentDeltaSeries[i].name);
-      if (date.getDay() == 0) {
-        this.deltaTimeTicks.push(new Date(this.currentDeltaSeries[i].name));
+    let series = this.currentDeltaSeries[0].series;
+    for (let i = 0; i < series.length; i++) {
+      let date = new Date(series[i].name);
+      if (date.getDate() == 1) {
+        this.deltaTimeTicks.push(new Date(date));
       }
     }
   }
@@ -144,7 +145,7 @@ export class GraphicsComponent implements OnInit {
   };
 
   deltaColorScheme = {
-    domain: ['#6666ff', '#ff6666', '#66aa66', '#a8385d', '#aae3f5']
+    domain: ['#ff6666', '#6666ff', '#66aa66', '#a8385d', '#aae3f5']
   };
 
   mobilityColorScheme = {
@@ -184,7 +185,8 @@ export class GraphicsComponent implements OnInit {
     let recoveredCases = this.createSeries("Recovered");
     let reproductionNumbers = this.createSeries("Reproduction number");
     let logarithmicValues = this.createSeries("Cases");
-    let deltaSeries = new Array<DataSeries>();
+    let deltaCases = this.createSeries("New Cases");
+    let deltaDeaths = this.createSeries("New Deaths");
 
     for (let i = 0; this.currentHistory != null && i < this.currentHistory.length; i++) {
       let entry = this.currentHistory[i];
@@ -206,27 +208,10 @@ export class GraphicsComponent implements OnInit {
 
       if (i > 0 && entry.updated >= this.xTimeScaleMin) {
         let prev = this.currentHistory[i - 1];
-        let newSeries = new DataSeries();
-        newSeries.name = entry.updated.toString();
-        newSeries.series = new Array<DataPoint>();
-
-        let newCase = new DataPoint();
-        newCase.name = "New Deaths";
-        newCase.value = - (entry.deaths - prev.deaths);
-        newSeries.series.push(newCase);
-
-        newCase = new DataPoint();
-        newCase.name = "New Cases";
-        newCase.value = entry.delta;
-        newSeries.series.push(newCase);
-
-        // newCase = new DataPoint();
-        // newCase.name = "New recovered";
-        // newCase.value = - (entry.recovered - prev.recovered);
-        // newSeries.series.push(newCase);
-
-
-        deltaSeries.push(newSeries);
+        let deltaCasesPoint = GraphicsComponent.CreateDataPoint(entry.updated, entry.delta);
+        let deltaDeathsPoint = GraphicsComponent.CreateDataPoint(entry.updated, entry.deaths - prev.deaths);
+        deltaCases.series.push(deltaCasesPoint);
+        deltaDeaths.series.push(deltaDeathsPoint);
       }
     }
     this.currentCasesSeries = new Array<DataSeries>();
@@ -242,7 +227,10 @@ export class GraphicsComponent implements OnInit {
     this.currentLogSeries = new Array<DataSeries>();
     this.currentLogSeries.push(logarithmicValues)
 
-    this.currentDeltaSeries = deltaSeries;
+    this.currentDeltaSeries = new Array<DataSeries>();
+    this.currentDeltaSeries.push(deltaCases);
+    this.currentDeltaSeries.push(deltaDeaths);
+
     this.setDeltaTimeTicks();
   }
 
