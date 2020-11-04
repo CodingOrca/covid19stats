@@ -14,7 +14,8 @@ export class GraphicsComponent implements OnInit {
 
   currentHistory: CaseData[] = new Array<CaseData>();
 
-  xTimeScaleMin: Date = new Date(Date.now() - 48 * 1000 * 60 * 60 * 24);
+  xTimeScaleMin: Date = new Date("2020-02-22");
+  // xTimeScaleMin: Date = new Date(Date.now() - 48 * 1000 * 60 * 60 * 24);
   xTimeScaleMax: Date = new Date(Date.now() - 1 * 1000 * 60 * 60 * 24);
   currentCasesSeries: Array<DataSeries>;
   currentReproductionSeries: Array<DataSeries>;
@@ -112,7 +113,7 @@ export class GraphicsComponent implements OnInit {
     let month = date.getMonth();
     let dayOfMonth = date.getDate();
     if (dayOfMonth < 8) return `${this.months[month]}`;
-    else return `${this.pad(date.getDate(), 2)}`;
+    else return "";//`${this.pad(date.getDate(), 2)}`;
   }
 
   deltaTimeTicks: Array<Date> = [new Date(2020, 0, 22), new Date()];
@@ -143,11 +144,11 @@ export class GraphicsComponent implements OnInit {
   };
 
   deltaColorScheme = {
-    domain: ['#ff6666', '#66aa66', '#6666ff', '#a8385d', '#aae3f5']
+    domain: ['#6666ff', '#ff6666', '#66aa66', '#a8385d', '#aae3f5']
   };
 
   mobilityColorScheme = {
-    domain: ['#ddffff', '#ddddff', '#ddffdd', '#ffccdd', '#ffddcc', '#000000']
+    domain: ['#ddffff', '#ddddff', '#ffccdd', '#ffddcc', '#000000']
   };
 
   maxCases: number = 1;
@@ -210,19 +211,20 @@ export class GraphicsComponent implements OnInit {
         newSeries.series = new Array<DataPoint>();
 
         let newCase = new DataPoint();
+        newCase.name = "New Deaths";
+        newCase.value = - (entry.deaths - prev.deaths);
+        newSeries.series.push(newCase);
+
+        newCase = new DataPoint();
         newCase.name = "New Cases";
         newCase.value = entry.delta;
         newSeries.series.push(newCase);
 
-        newCase = new DataPoint();
-        newCase.name = "New recovered";
-        newCase.value = - (entry.recovered - prev.recovered);
-        newSeries.series.push(newCase);
+        // newCase = new DataPoint();
+        // newCase.name = "New recovered";
+        // newCase.value = - (entry.recovered - prev.recovered);
+        // newSeries.series.push(newCase);
 
-        newCase = new DataPoint();
-        newCase.name = "New Deaths";
-        newCase.value = - (entry.deaths - prev.deaths);
-        newSeries.series.push(newCase);
 
         deltaSeries.push(newSeries);
       }
@@ -249,24 +251,24 @@ export class GraphicsComponent implements OnInit {
     let averageSeries = this.createSeries("average");
     let retailSeries = this.createSeries("retail & recreation");
     let grocerySeries = this.createSeries("grocery & pharmacies");
-    let parksSeries = this.createSeries("parks");
+    // let parksSeries = this.createSeries("parks");
     let transitSeries = this.createSeries("transit stations");
     let workplaceSeries = this.createSeries("workplace");
     //let residentialSeries = this.createSeries("residential");
     this.currentMobilitySeries.push(retailSeries);
     this.currentMobilitySeries.push(grocerySeries);
-    this.currentMobilitySeries.push(parksSeries);
+    // this.currentMobilitySeries.push(parksSeries);
     this.currentMobilitySeries.push(transitSeries);
     this.currentMobilitySeries.push(workplaceSeries);
     this.currentMobilitySeries.push(averageSeries);
     //this.currentMobilitySeries.push(residentialSeries);
     for (let i = 0; i < this.mobilityData.length; i++) {
       let item = this.mobilityData[i];
-      let avg = SharingService.calculateAverageMobility(i, 7, this.mobilityData);
+      let avg = SharingService.calculateAverageMobility(i, 1, this.mobilityData);
       averageSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, avg));
       retailSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.retailAndRecreation));
       grocerySeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.groceryAndPharmacy));
-      parksSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.parks));
+      // parksSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.parks));
       transitSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.transitStations));
       workplaceSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.workplace));
       //residentialSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.residential));

@@ -172,7 +172,7 @@ export class MobilityData {
   workplace: number = 0;
   residential: number = 0;
   get average(): number {
-    return (this.retailAndRecreation + this.groceryAndPharmacy + this.parks +
-      this.transitStations + this.workplace) / 5;
+    return (this.retailAndRecreation + this.groceryAndPharmacy +
+      this.transitStations + this.workplace) / 4;
   }
 }

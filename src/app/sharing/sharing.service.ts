@@ -104,7 +104,7 @@ export class SharingService {
     s.infectionRateDelta = s.infectionRate - countryHistory[countryHistory.length - 2].infectionRate;
     let mData = this.getMobilityData(countryDetails?.countryInfo?.iso2);
     if (mData != null && mData.length > 0)
-      s.mobilityChange = SharingService.calculateAverageMobility(mData.length - 1, this.daysForAverage, mData);
+      s.mobilityChange = SharingService.calculateAverageMobility(mData.length - 1, 1, mData);
     else s.mobilityChange = null;
 
     if (countryDetails != null) {
