@@ -186,11 +186,20 @@ export class SharingService {
     return -b / (2 * a);
   }
 
-  static calculateAverageMobility(i: number, averagePeriod: number, hist: MobilityData[]) {
+  static calculateAverageMobility(i: number, averagePeriod: number, hist: MobilityData[]): number {
     let avg = 0;
     let count = Math.min(averagePeriod - 1, i);
     for (let k = i - count; k <= i; k++) {
       avg += hist[k].average / (count + 1);
+    }
+    return avg;
+  }
+
+  static calculateAverageDelta(i: number, averagePeriod: number, hist: CaseData[]): number {
+    let avg = 0;
+    let count = Math.min(averagePeriod - 1, i);
+    for (let k = i - count; k <= i; k++) {
+      avg += hist[k].delta / (count + 1);
     }
     return avg;
   }

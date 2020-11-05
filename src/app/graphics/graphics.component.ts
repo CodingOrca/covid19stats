@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ɵisDefaultChangeDetectionStrategy } from '@angular/core';
 import { DataSeries, SummaryViewData, CaseData, DataPoint, MobilityData } from '../data-model';
 import { SettingsService } from '../settings/settings.service';
 import { SharingService } from '../sharing/sharing.service';
@@ -208,8 +208,11 @@ export class GraphicsComponent implements OnInit {
 
       if (i > 0 && entry.updated >= this.xTimeScaleMin) {
         let prev = this.currentHistory[i - 1];
-        let deltaCasesPoint = GraphicsComponent.CreateDataPoint(entry.updated, entry.delta);
+        let averageDelta = SharingService.calculateAverageDelta(i, 7, this.currentHistory);
+        if(averageDelta < 0) averageDelta  = 0;
+        let deltaCasesPoint = GraphicsComponent.CreateDataPoint(entry.updated, averageDelta);
         let deltaDeathsPoint = GraphicsComponent.CreateDataPoint(entry.updated, entry.deaths - prev.deaths);
+        if(deltaDeathsPoint.value < 0) deltaDeathsPoint.value = 0;
         deltaCases.series.push(deltaCasesPoint);
         deltaDeaths.series.push(deltaDeathsPoint);
       }
