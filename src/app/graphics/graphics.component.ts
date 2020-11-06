@@ -239,7 +239,7 @@ export class GraphicsComponent implements OnInit {
 
   private renderMobilityData() {
     this.currentMobilitySeries = new Array<DataSeries>();
-    let averageSeries = this.createSeries("average");
+    let averageSeries = this.createSeries("7 days average");
     let retailSeries = this.createSeries("retail & recreation");
     let grocerySeries = this.createSeries("grocery & pharmacies");
     // let parksSeries = this.createSeries("parks");
@@ -255,7 +255,7 @@ export class GraphicsComponent implements OnInit {
     //this.currentMobilitySeries.push(residentialSeries);
     for (let i = 0; i < this.mobilityData.length; i++) {
       let item = this.mobilityData[i];
-      let avg = SharingService.calculateAverageMobility(i, 1, this.mobilityData);
+      let avg = SharingService.calculateAverageMobility(i, 7, this.mobilityData);
       averageSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, avg));
       retailSeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.retailAndRecreation));
       grocerySeries.series.push(GraphicsComponent.CreateDataPoint(item.date, item.groceryAndPharmacy));
