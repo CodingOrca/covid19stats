@@ -144,7 +144,7 @@ export class DataService {
     let lines = content.toString().split('\n');
     for (let i = 1; i < lines.length; i++) {
       let columns = lines[i].split(';');
-      if (columns.length != 14) continue;
+      if (columns.length != 15) continue;
       let item = new MobilityData();
       item.iso2 = columns[0];
       item.region = columns[1];
@@ -153,13 +153,13 @@ export class DataService {
       item.metroArea = columns[4];
       item.iso_3166_2_code = columns[5];
       item.census_fips_code = columns[6];
-      item.date = new Date(columns[7]);
-      item.retailAndRecreation = Number.parseInt(columns[8]);
-      item.groceryAndPharmacy = Number.parseInt(columns[9]);
-      item.parks = Number.parseInt(columns[10]);
-      item.transitStations = Number.parseInt(columns[11]);
-      item.workplace = Number.parseInt(columns[12]);
-      item.residential = Number.parseInt(columns[13]);
+      item.date = new Date(columns[8]);
+      item.retailAndRecreation = Number.parseInt(columns[9]);
+      item.groceryAndPharmacy = Number.parseInt(columns[10]);
+      item.parks = Number.parseInt(columns[11]);
+      item.transitStations = Number.parseInt(columns[12]);
+      item.workplace = Number.parseInt(columns[13]);
+      item.residential = Number.parseInt(columns[14]);
       result.push(item);
     }
     return result;
