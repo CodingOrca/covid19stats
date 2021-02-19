@@ -171,7 +171,6 @@ class JhuCountry {
   province: string;
   updatedAt: string;
   stats: JhuCaseData;
-  coordinates: Coordinates;
 }
 
 class JhuCaseData {
